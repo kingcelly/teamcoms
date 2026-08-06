@@ -32,6 +32,7 @@ class AppRepository {
     val teams get() = com.aceclub.teamapp.data.teams
     val roster get() = com.aceclub.teamapp.data.roster
     val schedule get() = com.aceclub.teamapp.data.schedule
+    val chats get() = com.aceclub.teamapp.data.seedChats
 
     fun login(name: String, role: UserRole, teamId: String?) {
         _user.value = AppUser(name = name, role = role, teamId = teamId)

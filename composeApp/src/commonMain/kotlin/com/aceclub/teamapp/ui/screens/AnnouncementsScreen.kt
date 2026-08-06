@@ -38,6 +38,7 @@ fun AnnouncementsScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
+    onMenuClick: () -> Unit,
     onNewAnnouncement: () -> Unit
 ) {
     val sorted = remember(announcements) {
@@ -50,6 +51,7 @@ fun AnnouncementsScreen(
         com.aceclub.teamapp.ui.components.ScreenHeader(
             title = "Announcements",
             subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name },
+            onMenuClick = onMenuClick,
             trailing = if (role == UserRole.COACH) {
                 {
                     IconButton(

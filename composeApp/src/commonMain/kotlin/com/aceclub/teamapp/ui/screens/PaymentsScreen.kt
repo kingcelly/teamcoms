@@ -39,6 +39,7 @@ fun PaymentsScreen(
     roster: List<Player>,
     currentTeamId: String?,
     role: UserRole,
+    onMenuClick: () -> Unit,
     onMarkPaid: (paymentId: String) -> Unit
 ) {
     val visible = remember(payments, roster, currentTeamId, role) {
@@ -51,7 +52,11 @@ fun PaymentsScreen(
     val totalDue = visible.filter { it.status != PaymentStatus.PAID }.sumOf { it.amount }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Payments", subtitle = if (totalDue > 0) "$$totalDue outstanding" else "All caught up")
+        ScreenHeader(
+            title = "Payments",
+            subtitle = if (totalDue > 0) "$$totalDue outstanding" else "All caught up",
+            onMenuClick = onMenuClick
+        )
 
         if (visible.isEmpty()) {
             EmptyState(title = "No dues right now", subtitle = "Fees and payment requests will show up here.")

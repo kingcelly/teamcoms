@@ -62,3 +62,12 @@ data class PaymentDue(
     val dueDate: String, // e.g. "2026-08-15"
     val status: PaymentStatus
 )
+
+data class ChatThread(
+    val id: String,
+    val teamId: String?, // null = all teams
+    val name: String,
+    val lastMessage: String,
+    val lastMessageAtEpochMillis: Long,
+    val unreadCount: Int = 0
+)

@@ -26,11 +26,11 @@ import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
 
 @Composable
-fun ProfileScreen(user: AppUser?, teams: List<Team>, onLogout: () -> Unit) {
+fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, onLogout: () -> Unit) {
     val team = teams.find { it.id == user?.teamId }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Profile")
+        ScreenHeader(title = "Settings", onMenuClick = onMenuClick)
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),

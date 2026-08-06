@@ -44,6 +44,7 @@ fun ScheduleScreen(
     currentTeamId: String?,
     role: UserRole,
     rsvps: Map<String, RsvpResponse>,
+    onMenuClick: () -> Unit,
     onRsvp: (eventId: String, response: RsvpResponse) -> Unit
 ) {
     val grouped = remember(schedule, currentTeamId) {
@@ -54,7 +55,11 @@ fun ScheduleScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Schedule", subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name } ?: "All teams")
+        ScreenHeader(
+            title = "Schedule",
+            subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name } ?: "All teams",
+            onMenuClick = onMenuClick
+        )
 
         if (grouped.isEmpty()) {
             EmptyState(title = "Nothing on the calendar", subtitle = "Practices, games and tournaments will show up here.")

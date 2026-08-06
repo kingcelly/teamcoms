@@ -37,6 +37,7 @@ fun RosterScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
+    onMenuClick: () -> Unit,
     onCall: (phone: String) -> Unit,
     onEmail: (email: String) -> Unit
 ) {
@@ -45,7 +46,7 @@ fun RosterScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Roster", subtitle = "Players & parent contacts")
+        ScreenHeader(title = "Roster", subtitle = "Players & parent contacts", onMenuClick = onMenuClick)
 
         if (roster.isEmpty()) {
             EmptyState(title = "No players yet", subtitle = "Add players once your roster is ready.")

@@ -79,6 +79,29 @@ val schedule = listOf(
     )
 )
 
+val seedChats = listOf(
+    ChatThread(
+        id = "c1", teamId = null, name = "Club Office",
+        lastMessage = "Fall league registration closes August 20th — don't forget!",
+        lastMessageAtEpochMillis = iso("2026-08-05T20:15:00Z"), unreadCount = 2
+    ),
+    ChatThread(
+        id = "c2", teamId = "t1", name = "14U Storm",
+        lastMessage = "Coach Reyes: See everyone Thursday in the West Gym.",
+        lastMessageAtEpochMillis = iso("2026-08-05T14:40:00Z")
+    ),
+    ChatThread(
+        id = "c3", teamId = "t1", name = "Lin Chen (Maya's parent)",
+        lastMessage = "Thanks for the update, we'll be there!",
+        lastMessageAtEpochMillis = iso("2026-08-04T23:05:00Z")
+    ),
+    ChatThread(
+        id = "c4", teamId = "t2", name = "16U Rally",
+        lastMessage = "Susan Lee: Is the tournament schedule posted yet?",
+        lastMessageAtEpochMillis = iso("2026-08-03T18:20:00Z"), unreadCount = 1
+    )
+)
+
 val seedPayments = listOf(
     PaymentDue(id = "pay1", playerId = "p1", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.DUE),
     PaymentDue(id = "pay2", playerId = "p2", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),
