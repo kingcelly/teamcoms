@@ -1,3 +1,4 @@
+
 # Ace Volleyball Club — Kotlin Multiplatform
 
 The same volleyball club app, rebuilt as **Kotlin Multiplatform with Compose
@@ -103,3 +104,6 @@ Palette and type choices live in `ui/theme/Color.kt` / `Theme.kt` — the same
 deep court-navy + volleyball-orange palette as the Expo version, translated
 to Compose's color/typography system. Update it there to reflect your club's
 own colors/logo.
+
+# teamcoms
+App that allows user to connect and communicate to admins, coaches, and other players/parents
