@@ -71,3 +71,12 @@ data class ChatThread(
     val lastMessageAtEpochMillis: Long,
     val unreadCount: Int = 0
 )
+
+data class ChatMessage(
+    val id: String,
+    val chatId: String,
+    val senderName: String,
+    val body: String,
+    val sentAtEpochMillis: Long,
+    val fromMe: Boolean = false
+)

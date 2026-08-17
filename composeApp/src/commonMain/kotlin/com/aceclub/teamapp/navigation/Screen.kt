@@ -18,4 +18,5 @@ sealed class Screen {
     data object Login : Screen()
     data class Main(val tab: Tab = Tab.Announcements) : Screen()
     data object NewAnnouncement : Screen()
+    data class ChatConversation(val chatId: String) : Screen()
 }

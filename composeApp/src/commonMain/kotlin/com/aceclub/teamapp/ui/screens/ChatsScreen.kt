@@ -2,6 +2,7 @@ package com.aceclub.teamapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +37,8 @@ fun ChatsScreen(
     chats: List<ChatThread>,
     teams: List<Team>,
     currentTeamId: String?,
-    onMenuClick: () -> Unit
+    onMenuClick: () -> Unit,
+    onOpenChat: (chatId: String) -> Unit
 ) {
     val visible = remember(chats, currentTeamId) {
         chats
@@ -59,7 +61,7 @@ fun ChatsScreen(
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(visible, key = { it.id }) { chat ->
-                    ChatCard(chat)
+                    ChatCard(chat, onClick = { onOpenChat(chat.id) })
                 }
             }
         }
@@ -67,12 +69,13 @@ fun ChatsScreen(
 }
 
 @Composable
-private fun ChatCard(chat: ChatThread) {
+private fun ChatCard(chat: ChatThread, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(AceColors.surface, RoundedCornerShape(16.dp))
             .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
             .padding(14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {

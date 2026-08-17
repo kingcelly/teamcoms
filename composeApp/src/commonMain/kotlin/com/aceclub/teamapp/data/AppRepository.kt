@@ -29,10 +29,15 @@ class AppRepository {
     private val _rsvps = MutableStateFlow<Map<String, RsvpResponse>>(emptyMap())
     val rsvps: StateFlow<Map<String, RsvpResponse>> = _rsvps.asStateFlow()
 
+    private val _chats = MutableStateFlow(seedChats)
+    val chats: StateFlow<List<ChatThread>> = _chats.asStateFlow()
+
+    private val _chatMessages = MutableStateFlow(seedChatMessages)
+    val chatMessages: StateFlow<List<ChatMessage>> = _chatMessages.asStateFlow()
+
     val teams get() = com.aceclub.teamapp.data.teams
     val roster get() = com.aceclub.teamapp.data.roster
     val schedule get() = com.aceclub.teamapp.data.schedule
-    val chats get() = com.aceclub.teamapp.data.seedChats
 
     fun login(name: String, role: UserRole, teamId: String?) {
         _user.value = AppUser(name = name, role = role, teamId = teamId)
@@ -63,6 +68,29 @@ class AppRepository {
     fun markPaid(paymentId: String) {
         _payments.value = _payments.value.map {
             if (it.id == paymentId) it.copy(status = PaymentStatus.PAID) else it
+        }
+    }
+
+    fun sendChatMessage(chatId: String, body: String) {
+        val sender = _user.value?.name ?: "Me"
+        val now = epochMillisNow()
+        val message = ChatMessage(
+            id = "msg${now}",
+            chatId = chatId,
+            senderName = sender,
+            body = body,
+            sentAtEpochMillis = now,
+            fromMe = true
+        )
+        _chatMessages.value = _chatMessages.value + message
+        _chats.value = _chats.value.map {
+            if (it.id == chatId) it.copy(lastMessage = body, lastMessageAtEpochMillis = now, unreadCount = 0) else it
+        }
+    }
+
+    fun markChatRead(chatId: String) {
+        _chats.value = _chats.value.map {
+            if (it.id == chatId) it.copy(unreadCount = 0) else it
         }
     }
 }

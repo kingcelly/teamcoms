@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,6 +25,7 @@ fun ScreenHeader(
     title: String,
     subtitle: String? = null,
     onMenuClick: (() -> Unit)? = null,
+    onBackClick: (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null
 ) {
     Row(
@@ -33,7 +35,11 @@ fun ScreenHeader(
             .padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        if (onMenuClick != null) {
+        if (onBackClick != null) {
+            IconButton(onClick = onBackClick) {
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+            }
+        } else if (onMenuClick != null) {
             IconButton(onClick = onMenuClick) {
                 Icon(Icons.Filled.Menu, contentDescription = "Open menu", tint = Color.White)
             }

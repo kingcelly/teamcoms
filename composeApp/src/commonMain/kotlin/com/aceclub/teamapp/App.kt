@@ -33,6 +33,7 @@ import com.aceclub.teamapp.data.RsvpResponse
 import com.aceclub.teamapp.navigation.Screen
 import com.aceclub.teamapp.navigation.Tab
 import com.aceclub.teamapp.ui.screens.AnnouncementsScreen
+import com.aceclub.teamapp.ui.screens.ChatConversationScreen
 import com.aceclub.teamapp.ui.screens.ChatsScreen
 import com.aceclub.teamapp.ui.screens.LoginScreen
 import com.aceclub.teamapp.ui.screens.NewAnnouncementScreen
@@ -62,6 +63,8 @@ fun App(
         val announcements by repository.announcements.collectAsState()
         val payments by repository.payments.collectAsState()
         val rsvps by repository.rsvps.collectAsState()
+        val chats by repository.chats.collectAsState()
+        val chatMessages by repository.chatMessages.collectAsState()
 
         var screen by remember { mutableStateOf<Screen>(Screen.Login) }
 
@@ -87,6 +90,20 @@ fun App(
                     screen = Screen.Main(Tab.Announcements)
                 }
             )
+
+            is Screen.ChatConversation -> {
+                val chat = chats.find { it.id == current.chatId }
+                if (chat == null) {
+                    screen = Screen.Main(Tab.Chats)
+                } else {
+                    ChatConversationScreen(
+                        chat = chat,
+                        messages = chatMessages.filter { it.chatId == current.chatId },
+                        onBack = { screen = Screen.Main(Tab.Chats) },
+                        onSend = { body -> repository.sendChatMessage(current.chatId, body) }
+                    )
+                }
+            }
 
             is Screen.Main -> {
                 val u = user ?: return@AceVolleyballTheme
@@ -116,10 +133,14 @@ fun App(
                             onNewAnnouncement = { screen = Screen.NewAnnouncement }
                         )
                         Tab.Chats -> ChatsScreen(
-                            chats = repository.chats,
+                            chats = chats,
                             teams = repository.teams,
                             currentTeamId = u.teamId,
-                            onMenuClick = openMenu
+                            onMenuClick = openMenu,
+                            onOpenChat = { chatId ->
+                                repository.markChatRead(chatId)
+                                screen = Screen.ChatConversation(chatId)
+                            }
                         )
                         Tab.Schedule -> ScheduleScreen(
                             schedule = repository.schedule,

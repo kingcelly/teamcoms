@@ -102,6 +102,54 @@ val seedChats = listOf(
     )
 )
 
+val seedChatMessages = listOf(
+    ChatMessage(
+        id = "m1-1", chatId = "c1", senderName = "Club Office",
+        body = "Hi all! Just a heads up that fall league registration is now open.",
+        sentAtEpochMillis = iso("2026-08-04T15:00:00Z")
+    ),
+    ChatMessage(
+        id = "m1-2", chatId = "c1", senderName = "Me",
+        body = "Thanks — will registration close before the tournament?",
+        sentAtEpochMillis = iso("2026-08-04T15:20:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m1-3", chatId = "c1", senderName = "Club Office",
+        body = "Fall league registration closes August 20th — don't forget!",
+        sentAtEpochMillis = iso("2026-08-05T20:15:00Z")
+    ),
+    ChatMessage(
+        id = "m2-1", chatId = "c2", senderName = "Coach Reyes",
+        body = "Quick note: practice is moving to the West Gym this Thursday.",
+        sentAtEpochMillis = iso("2026-08-05T14:00:00Z")
+    ),
+    ChatMessage(
+        id = "m2-2", chatId = "c2", senderName = "Me",
+        body = "Got it, thanks Coach!",
+        sentAtEpochMillis = iso("2026-08-05T14:10:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m2-3", chatId = "c2", senderName = "Coach Reyes",
+        body = "See everyone Thursday in the West Gym.",
+        sentAtEpochMillis = iso("2026-08-05T14:40:00Z")
+    ),
+    ChatMessage(
+        id = "m3-1", chatId = "c3", senderName = "Me",
+        body = "Hi Lin, just confirming Maya is set for Saturday's drills.",
+        sentAtEpochMillis = iso("2026-08-04T22:50:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m3-2", chatId = "c3", senderName = "Lin Chen",
+        body = "Thanks for the update, we'll be there!",
+        sentAtEpochMillis = iso("2026-08-04T23:05:00Z")
+    ),
+    ChatMessage(
+        id = "m4-1", chatId = "c4", senderName = "Susan Lee",
+        body = "Is the tournament schedule posted yet?",
+        sentAtEpochMillis = iso("2026-08-03T18:20:00Z")
+    )
+)
+
 val seedPayments = listOf(
     PaymentDue(id = "pay1", playerId = "p1", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.DUE),
     PaymentDue(id = "pay2", playerId = "p2", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),
