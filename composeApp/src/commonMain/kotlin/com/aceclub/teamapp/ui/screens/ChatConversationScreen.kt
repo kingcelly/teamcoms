@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -50,6 +51,7 @@ fun ChatConversationScreen(
     chat: ChatThread,
     messages: List<ChatMessage>,
     onBack: () -> Unit,
+    onOpenDetails: () -> Unit,
     onSend: (String) -> Unit
 ) {
     var draft by remember { mutableStateOf("") }
@@ -61,7 +63,15 @@ fun ChatConversationScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = chat.name, onBackClick = onBack)
+        ScreenHeader(
+            title = chat.name,
+            onBackClick = onBack,
+            trailing = {
+                IconButton(onClick = onOpenDetails) {
+                    Icon(Icons.Filled.Info, contentDescription = "Conversation details", tint = Color.White)
+                }
+            }
+        )
 
         if (sorted.isEmpty()) {
             Column(modifier = Modifier.weight(1f)) {
@@ -166,6 +176,7 @@ private fun ChatConversationScreenPreview() {
             chat = chat,
             messages = seedChatMessages.filter { it.chatId == chat.id },
             onBack = {},
+            onOpenDetails = {},
             onSend = {}
         )
     }

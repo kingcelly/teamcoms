@@ -83,22 +83,43 @@ val seedChats = listOf(
     ChatThread(
         id = "c1", teamId = null, name = "Club Office",
         lastMessage = "Fall league registration closes August 20th — don't forget!",
-        lastMessageAtEpochMillis = iso("2026-08-05T20:15:00Z"), unreadCount = 2
+        lastMessageAtEpochMillis = iso("2026-08-05T20:15:00Z"), unreadCount = 2,
+        participants = listOf(
+            ChatParticipant("Club Office", "Admin"),
+            ChatParticipant("Coach Reyes", "Coach · 14U Storm"),
+            ChatParticipant("You", "You")
+        )
     ),
     ChatThread(
         id = "c2", teamId = "t1", name = "14U Storm",
         lastMessage = "Coach Reyes: See everyone Thursday in the West Gym.",
-        lastMessageAtEpochMillis = iso("2026-08-05T14:40:00Z")
+        lastMessageAtEpochMillis = iso("2026-08-05T14:40:00Z"),
+        participants = listOf(
+            ChatParticipant("Coach Reyes", "Coach"),
+            ChatParticipant("Lin Chen", "Parent · Maya Chen"),
+            ChatParticipant("Diego Torres", "Parent · Ava Torres"),
+            ChatParticipant("Kate Bishop", "Parent · Nora Bishop"),
+            ChatParticipant("You", "You")
+        )
     ),
     ChatThread(
         id = "c3", teamId = "t1", name = "Lin Chen (Maya's parent)",
         lastMessage = "Thanks for the update, we'll be there!",
-        lastMessageAtEpochMillis = iso("2026-08-04T23:05:00Z")
+        lastMessageAtEpochMillis = iso("2026-08-04T23:05:00Z"),
+        participants = listOf(
+            ChatParticipant("Lin Chen", "Parent · Maya Chen"),
+            ChatParticipant("You", "You")
+        )
     ),
     ChatThread(
         id = "c4", teamId = "t2", name = "16U Rally",
         lastMessage = "Susan Lee: Is the tournament schedule posted yet?",
-        lastMessageAtEpochMillis = iso("2026-08-03T18:20:00Z"), unreadCount = 1
+        lastMessageAtEpochMillis = iso("2026-08-03T18:20:00Z"), unreadCount = 1,
+        participants = listOf(
+            ChatParticipant("Susan Lee", "Parent · Jordan Lee"),
+            ChatParticipant("Marco Ramirez", "Parent · Ella Ramirez"),
+            ChatParticipant("You", "You")
+        )
     )
 )
 

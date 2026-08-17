@@ -34,6 +34,7 @@ import com.aceclub.teamapp.navigation.Screen
 import com.aceclub.teamapp.navigation.Tab
 import com.aceclub.teamapp.ui.screens.AnnouncementsScreen
 import com.aceclub.teamapp.ui.screens.ChatConversationScreen
+import com.aceclub.teamapp.ui.screens.ChatDetailsScreen
 import com.aceclub.teamapp.ui.screens.ChatsScreen
 import com.aceclub.teamapp.ui.screens.LoginScreen
 import com.aceclub.teamapp.ui.screens.NewAnnouncementScreen
@@ -100,7 +101,20 @@ fun App(
                         chat = chat,
                         messages = chatMessages.filter { it.chatId == current.chatId },
                         onBack = { screen = Screen.Main(Tab.Chats) },
+                        onOpenDetails = { screen = Screen.ChatDetails(current.chatId) },
                         onSend = { body -> repository.sendChatMessage(current.chatId, body) }
+                    )
+                }
+            }
+
+            is Screen.ChatDetails -> {
+                val chat = chats.find { it.id == current.chatId }
+                if (chat == null) {
+                    screen = Screen.Main(Tab.Chats)
+                } else {
+                    ChatDetailsScreen(
+                        chat = chat,
+                        onBack = { screen = Screen.ChatConversation(current.chatId) }
                     )
                 }
             }

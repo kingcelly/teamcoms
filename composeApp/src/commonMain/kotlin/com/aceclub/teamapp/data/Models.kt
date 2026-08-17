@@ -63,13 +63,19 @@ data class PaymentDue(
     val status: PaymentStatus
 )
 
+data class ChatParticipant(
+    val name: String,
+    val role: String // e.g. "Coach", "Parent", "Club Office", "You"
+)
+
 data class ChatThread(
     val id: String,
     val teamId: String?, // null = all teams
     val name: String,
     val lastMessage: String,
     val lastMessageAtEpochMillis: Long,
-    val unreadCount: Int = 0
+    val unreadCount: Int = 0,
+    val participants: List<ChatParticipant> = emptyList()
 )
 
 data class ChatMessage(
