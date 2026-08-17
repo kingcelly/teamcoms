@@ -28,10 +28,15 @@ import com.aceclub.teamapp.data.PaymentDue
 import com.aceclub.teamapp.data.PaymentStatus
 import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.roster
+import com.aceclub.teamapp.data.seedPayments
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.PaymentBadge
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun PaymentsScreen(
@@ -109,5 +114,20 @@ private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole,
                 ) { Text("Mark paid", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White) }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PaymentsScreenPreview() {
+    AceVolleyballTheme {
+        PaymentsScreen(
+            payments = seedPayments,
+            roster = roster,
+            currentTeamId = teams.first().id,
+            role = UserRole.PARENT,
+            onMenuClick = {},
+            onMarkPaid = {}
+        )
     }
 }

@@ -34,12 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.ChatMessage
 import com.aceclub.teamapp.data.ChatThread
+import com.aceclub.teamapp.data.seedChatMessages
+import com.aceclub.teamapp.data.seedChats
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChatConversationScreen(
@@ -151,4 +155,18 @@ private fun timeLabel(epochMillis: Long): String {
     val suffix = if (dt.hour < 12) "AM" else "PM"
     val minute = dt.minute.toString().padStart(2, '0')
     return "$hour12:$minute $suffix"
+}
+
+@Preview
+@Composable
+private fun ChatConversationScreenPreview() {
+    val chat = seedChats.first()
+    AceVolleyballTheme {
+        ChatConversationScreen(
+            chat = chat,
+            messages = seedChatMessages.filter { it.chatId == chat.id },
+            onBack = {},
+            onSend = {}
+        )
+    }
 }

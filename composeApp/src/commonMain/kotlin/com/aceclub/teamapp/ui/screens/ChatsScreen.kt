@@ -28,9 +28,13 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.ChatThread
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.epochMillisNow
+import com.aceclub.teamapp.data.seedChats
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ChatsScreen(
@@ -127,5 +131,19 @@ private fun timeAgo(epochMillis: Long): String {
         hrs < 1 -> "just now"
         hrs < 24 -> "${hrs}h ago"
         else -> "${hrs / 24}d ago"
+    }
+}
+
+@Preview
+@Composable
+private fun ChatsScreenPreview() {
+    AceVolleyballTheme {
+        ChatsScreen(
+            chats = seedChats,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            onMenuClick = {},
+            onOpenChat = {}
+        )
     }
 }

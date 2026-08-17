@@ -30,7 +30,11 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Announcement
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.seedAnnouncements
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun AnnouncementsScreen(
@@ -115,3 +119,18 @@ private fun timeAgo(epochMillis: Long): String {
 }
 
 private fun epochMillisNowSafe(): Long = com.aceclub.teamapp.data.epochMillisNow()
+
+@Preview
+@Composable
+private fun AnnouncementsScreenPreview() {
+    AceVolleyballTheme {
+        AnnouncementsScreen(
+            announcements = seedAnnouncements,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            role = UserRole.COACH,
+            onMenuClick = {},
+            onNewAnnouncement = {}
+        )
+    }
+}

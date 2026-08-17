@@ -30,7 +30,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun LoginScreen(
@@ -140,5 +143,13 @@ private fun ChoiceChip(label: String, selected: Boolean, modifier: Modifier = Mo
             shape = RoundedCornerShape(12.dp),
             modifier = modifier
         ) { Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.ink) }
+    }
+}
+
+@Preview
+@Composable
+private fun LoginScreenPreview() {
+    AceVolleyballTheme {
+        LoginScreen(teams = teams, onLogin = { _, _, _ -> })
     }
 }

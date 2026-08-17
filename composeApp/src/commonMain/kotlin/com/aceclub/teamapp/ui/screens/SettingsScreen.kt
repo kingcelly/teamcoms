@@ -22,8 +22,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.AppUser
 import com.aceclub.teamapp.data.Team
+import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, onLogout: () -> Unit) {
@@ -72,5 +76,18 @@ private fun ProfileRow(label: String, danger: Boolean = false, onClick: () -> Un
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = if (danger) AceColors.danger else AceColors.ink)
+    }
+}
+
+@Preview
+@Composable
+private fun SettingsScreenPreview() {
+    AceVolleyballTheme {
+        SettingsScreen(
+            user = AppUser(name = "Kate Bishop", role = UserRole.PARENT, teamId = teams.first().id),
+            teams = teams,
+            onMenuClick = {},
+            onLogout = {}
+        )
     }
 }

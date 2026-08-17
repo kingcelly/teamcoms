@@ -29,13 +29,17 @@ import com.aceclub.teamapp.data.RsvpResponse
 import com.aceclub.teamapp.data.ScheduleEvent
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.schedule
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.EventTypeBadge
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ScheduleScreen(
@@ -132,4 +136,20 @@ private fun timeLabel(epochMillis: Long): String {
     val suffix = if (dt.hour < 12) "AM" else "PM"
     val minute = dt.minute.toString().padStart(2, '0')
     return "$hour12:$minute $suffix"
+}
+
+@Preview
+@Composable
+private fun ScheduleScreenPreview() {
+    AceVolleyballTheme {
+        ScheduleScreen(
+            schedule = schedule,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            role = UserRole.PARENT,
+            rsvps = emptyMap(),
+            onMenuClick = {},
+            onRsvp = { _, _ -> }
+        )
+    }
 }

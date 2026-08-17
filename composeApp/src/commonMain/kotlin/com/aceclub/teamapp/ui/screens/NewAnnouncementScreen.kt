@@ -32,7 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Team
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun NewAnnouncementScreen(
@@ -113,5 +116,13 @@ private fun FilterChipView(label: String, selected: Boolean, onClick: () -> Unit
         OutlinedButton(onClick = onClick, shape = RoundedCornerShape(999.dp)) {
             Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.ink)
         }
+    }
+}
+
+@Preview
+@Composable
+private fun NewAnnouncementScreenPreview() {
+    AceVolleyballTheme {
+        NewAnnouncementScreen(teams = teams, onCancel = {}, onPost = { _, _, _ -> })
     }
 }

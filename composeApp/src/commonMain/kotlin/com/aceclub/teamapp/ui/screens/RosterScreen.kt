@@ -27,9 +27,13 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.roster
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun RosterScreen(
@@ -106,5 +110,21 @@ private fun IconCircle(emoji: String, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         Text(emoji, fontSize = 14.sp)
+    }
+}
+
+@Preview
+@Composable
+private fun RosterScreenPreview() {
+    AceVolleyballTheme {
+        RosterScreen(
+            roster = roster,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            role = UserRole.COACH,
+            onMenuClick = {},
+            onCall = {},
+            onEmail = {}
+        )
     }
 }
