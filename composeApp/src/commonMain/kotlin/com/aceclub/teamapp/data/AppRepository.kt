@@ -40,6 +40,7 @@ class AppRepository {
 
     val teams get() = com.aceclub.teamapp.data.teams
     val roster get() = com.aceclub.teamapp.data.roster
+    val coaches get() = com.aceclub.teamapp.data.coaches
 
     fun login(name: String, role: UserRole, teamId: String?) {
         _user.value = AppUser(name = name, role = role, teamId = teamId)
@@ -94,6 +95,46 @@ class AppRepository {
         _chats.value = _chats.value.map {
             if (it.id == chatId) it.copy(unreadCount = 0) else it
         }
+    }
+
+    /** Finds (or starts) the 1:1 chat with a player's parent, for in-app chat instead of raw phone/email. */
+    fun openDirectChatWithPlayer(player: Player): String {
+        val existing = _chats.value.find { it.relatedPlayerId == player.id }
+        if (existing != null) return existing.id
+
+        val id = "c${epochMillisNow()}"
+        val new = ChatThread(
+            id = id,
+            teamId = player.teamId,
+            name = "${player.parent.name} (${player.name}'s parent)",
+            lastMessage = "",
+            lastMessageAtEpochMillis = epochMillisNow(),
+            participants = listOf(
+                ChatParticipant(player.parent.name, "Parent · ${player.name}"),
+                ChatParticipant("You", "You")
+            ),
+            relatedPlayerId = player.id
+        )
+        _chats.value = _chats.value + new
+        return id
+    }
+
+    /** Finds (or starts) a team's group chat, e.g. to message a coach. */
+    fun openTeamChat(team: Team): String {
+        val existing = _chats.value.find { it.teamId == team.id && it.relatedPlayerId == null }
+        if (existing != null) return existing.id
+
+        val id = "c${epochMillisNow()}"
+        val new = ChatThread(
+            id = id,
+            teamId = team.id,
+            name = team.name,
+            lastMessage = "",
+            lastMessageAtEpochMillis = epochMillisNow(),
+            participants = listOf(ChatParticipant("You", "You"))
+        )
+        _chats.value = _chats.value + new
+        return id
     }
 
     fun addScheduleEvent(

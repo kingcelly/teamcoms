@@ -48,17 +48,13 @@ import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import kotlinx.coroutines.launch
 
 /**
- * Root composable - owns the single AppRepository instance, top-level
- * navigation state, and the platform hooks for phone/email actions that
- * differ between Android and iOS. Announcements is the home screen; every
- * other destination is reached through the hamburger menu drawer.
+ * Root composable - owns the single AppRepository instance and top-level
+ * navigation state. Announcements is the home screen; every other
+ * destination is reached through the hamburger menu drawer.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun App(
-    onCall: (String) -> Unit = {},
-    onEmail: (String) -> Unit = {}
-) {
+fun App() {
     AceVolleyballTheme {
         val repository = remember { AppRepository() }
         val user by repository.user.collectAsState()
@@ -199,12 +195,22 @@ fun App(
                         )
                         Tab.Roster -> RosterScreen(
                             roster = repository.roster,
+                            coaches = repository.coaches,
                             teams = repository.teams,
                             currentTeamId = u.teamId,
                             role = u.role,
                             onMenuClick = openMenu,
-                            onCall = onCall,
-                            onEmail = onEmail
+                            onChatWithCoach = { coach ->
+                                val team = repository.teams.find { it.id == coach.teamId }
+                                if (team != null) {
+                                    val chatId = repository.openTeamChat(team)
+                                    screen = Screen.ChatConversation(chatId)
+                                }
+                            },
+                            onChatWithPlayer = { player ->
+                                val chatId = repository.openDirectChatWithPlayer(player)
+                                screen = Screen.ChatConversation(chatId)
+                            }
                         )
                         Tab.Payments -> PaymentsScreen(
                             payments = payments,

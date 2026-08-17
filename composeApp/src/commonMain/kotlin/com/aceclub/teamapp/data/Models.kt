@@ -32,6 +32,12 @@ data class Player(
     val parent: ParentContact
 )
 
+data class Coach(
+    val id: String,
+    val teamId: String,
+    val name: String
+)
+
 data class Announcement(
     val id: String,
     val teamId: String?, // null = all teams
@@ -79,7 +85,8 @@ data class ChatThread(
     val lastMessage: String,
     val lastMessageAtEpochMillis: Long,
     val unreadCount: Int = 0,
-    val participants: List<ChatParticipant> = emptyList()
+    val participants: List<ChatParticipant> = emptyList(),
+    val relatedPlayerId: String? = null // set for 1:1 chats tied to a specific player's parent
 )
 
 data class ChatMessage(

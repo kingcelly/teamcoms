@@ -12,6 +12,11 @@ val teams = listOf(
     Team(id = "t2", name = "16U Rally")
 )
 
+val coaches = listOf(
+    Coach(id = "co1", teamId = "t1", name = "Coach Reyes"),
+    Coach(id = "co2", teamId = "t2", name = "Coach Diaz")
+)
+
 val roster = listOf(
     Player(
         id = "p1", teamId = "t1", name = "Maya Chen", number = 4, position = "Outside Hitter",
@@ -109,13 +114,15 @@ val seedChats = listOf(
         participants = listOf(
             ChatParticipant("Lin Chen", "Parent · Maya Chen"),
             ChatParticipant("You", "You")
-        )
+        ),
+        relatedPlayerId = "p1"
     ),
     ChatThread(
         id = "c4", teamId = "t2", name = "16U Rally",
         lastMessage = "Susan Lee: Is the tournament schedule posted yet?",
         lastMessageAtEpochMillis = iso("2026-08-03T18:20:00Z"), unreadCount = 1,
         participants = listOf(
+            ChatParticipant("Coach Diaz", "Coach"),
             ChatParticipant("Susan Lee", "Parent · Jordan Lee"),
             ChatParticipant("Marco Ramirez", "Parent · Ella Ramirez"),
             ChatParticipant("You", "You")
