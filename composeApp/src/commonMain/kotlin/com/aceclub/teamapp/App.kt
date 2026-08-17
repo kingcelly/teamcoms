@@ -208,7 +208,11 @@ fun App() {
                                 }
                             },
                             onChatWithPlayer = { player ->
-                                val chatId = repository.openDirectChatWithPlayer(player)
+                                val chatId = repository.openChatWithPlayer(player)
+                                screen = Screen.ChatConversation(chatId)
+                            },
+                            onChatWithParent = { player ->
+                                val chatId = repository.openChatWithParent(player)
                                 screen = Screen.ChatConversation(chatId)
                             }
                         )

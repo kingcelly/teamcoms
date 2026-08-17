@@ -97,9 +97,32 @@ class AppRepository {
         }
     }
 
+    /** Finds (or starts) the 1:1 chat directly with a player, for in-app chat instead of raw phone/email. */
+    fun openChatWithPlayer(player: Player): String {
+        val existing = _chats.value.find { it.relatedPlayerId == player.id && !it.isParentChat }
+        if (existing != null) return existing.id
+
+        val id = "c${epochMillisNow()}"
+        val new = ChatThread(
+            id = id,
+            teamId = player.teamId,
+            name = player.name,
+            lastMessage = "",
+            lastMessageAtEpochMillis = epochMillisNow(),
+            participants = listOf(
+                ChatParticipant(player.name, "Player"),
+                ChatParticipant("You", "You")
+            ),
+            relatedPlayerId = player.id,
+            isParentChat = false
+        )
+        _chats.value = _chats.value + new
+        return id
+    }
+
     /** Finds (or starts) the 1:1 chat with a player's parent, for in-app chat instead of raw phone/email. */
-    fun openDirectChatWithPlayer(player: Player): String {
-        val existing = _chats.value.find { it.relatedPlayerId == player.id }
+    fun openChatWithParent(player: Player): String {
+        val existing = _chats.value.find { it.relatedPlayerId == player.id && it.isParentChat }
         if (existing != null) return existing.id
 
         val id = "c${epochMillisNow()}"
@@ -113,7 +136,8 @@ class AppRepository {
                 ChatParticipant(player.parent.name, "Parent · ${player.name}"),
                 ChatParticipant("You", "You")
             ),
-            relatedPlayerId = player.id
+            relatedPlayerId = player.id,
+            isParentChat = true
         )
         _chats.value = _chats.value + new
         return id

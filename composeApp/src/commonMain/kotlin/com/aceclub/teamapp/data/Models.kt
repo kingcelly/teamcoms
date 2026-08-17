@@ -86,7 +86,8 @@ data class ChatThread(
     val lastMessageAtEpochMillis: Long,
     val unreadCount: Int = 0,
     val participants: List<ChatParticipant> = emptyList(),
-    val relatedPlayerId: String? = null // set for 1:1 chats tied to a specific player's parent
+    val relatedPlayerId: String? = null, // set for 1:1 chats about a specific player
+    val isParentChat: Boolean = false // true = chatting with the player's parent, false = with the player
 )
 
 data class ChatMessage(

@@ -17,7 +17,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,35 +50,98 @@ fun RosterScreen(
     role: UserRole,
     onMenuClick: () -> Unit,
     onChatWithCoach: (Coach) -> Unit,
-    onChatWithPlayer: (Player) -> Unit
+    onChatWithPlayer: (Player) -> Unit,
+    onChatWithParent: (Player) -> Unit
 ) {
     val visibleTeams = remember(teams, currentTeamId, role) {
         if (role.isStaff) teams else teams.filter { it.id == currentTeamId }
     }
+    val collapsible = visibleTeams.size > 1
+    var collapsedTeamIds by remember { mutableStateOf(setOf<String>()) }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Roster", subtitle = "Coaches & players", onMenuClick = onMenuClick)
+        ScreenHeader(title = "Roster", subtitle = "Coaches, players & parents", onMenuClick = onMenuClick)
 
         if (roster.isEmpty() && coaches.isEmpty()) {
             EmptyState(title = "No roster yet", subtitle = "Coaches and players will show up here.")
         } else {
             LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 visibleTeams.forEach { team ->
+                    val isCollapsed = collapsible && team.id in collapsedTeamIds
                     item {
-                        Text(team.name.uppercase(), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court, modifier = Modifier.padding(bottom = 8.dp))
+                        TeamHeader(
+                            team = team,
+                            collapsible = collapsible,
+                            collapsed = isCollapsed,
+                            onToggle = {
+                                collapsedTeamIds = if (team.id in collapsedTeamIds) {
+                                    collapsedTeamIds - team.id
+                                } else {
+                                    collapsedTeamIds + team.id
+                                }
+                            }
+                        )
                     }
-                    val teamCoaches = coaches.filter { it.teamId == team.id }
-                    items(teamCoaches, key = { it.id }) { coach ->
-                        CoachCard(coach, onChat = { onChatWithCoach(coach) })
-                    }
-                    val players = roster.filter { it.teamId == team.id }.sortedBy { it.number }
-                    items(players, key = { it.id }) { player ->
-                        PlayerCard(player, onChat = { onChatWithPlayer(player) })
+
+                    if (!isCollapsed) {
+                        val teamCoaches = coaches.filter { it.teamId == team.id }
+                        if (teamCoaches.isNotEmpty()) {
+                            item { SubsectionLabel("Coaches") }
+                            items(teamCoaches, key = { "coach-${it.id}" }) { coach ->
+                                CoachCard(coach, onChat = { onChatWithCoach(coach) })
+                            }
+                        }
+
+                        val players = roster.filter { it.teamId == team.id }.sortedBy { it.number }
+                        if (players.isNotEmpty()) {
+                            item { SubsectionLabel("Players") }
+                            items(players, key = { "player-${it.id}" }) { player ->
+                                PlayerCard(player, onChat = { onChatWithPlayer(player) })
+                            }
+
+                            item { SubsectionLabel("Parents") }
+                            items(players, key = { "parent-${it.id}" }) { player ->
+                                ParentCard(player, onChat = { onChatWithParent(player) })
+                            }
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun TeamHeader(team: Team, collapsible: Boolean, collapsed: Boolean, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .then(if (collapsible) Modifier.clickable(onClick = onToggle) else Modifier)
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(team.name.uppercase(), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court)
+        if (collapsible) {
+            Text(
+                if (collapsed) "▸" else "▾",
+                fontSize = 13.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = AceColors.court
+            )
+        }
+    }
+}
+
+@Composable
+private fun SubsectionLabel(text: String) {
+    Text(
+        text.uppercase(),
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        color = AceColors.inkSoft,
+        modifier = Modifier.padding(bottom = 6.dp)
+    )
 }
 
 @Composable
@@ -131,6 +197,32 @@ private fun PlayerCard(player: Player, onChat: () -> Unit) {
 }
 
 @Composable
+private fun ParentCard(player: Player, onChat: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(AceColors.surface, RoundedCornerShape(16.dp))
+            .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier.size(38.dp).background(AceColors.sand, RoundedCornerShape(19.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(player.parent.name.firstOrNull()?.uppercase() ?: "?", fontWeight = FontWeight.ExtraBold, color = AceColors.court, fontSize = 15.sp)
+        }
+
+        Column(modifier = Modifier.weight(1f).padding(start = 12.dp)) {
+            Text(player.parent.name, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink)
+            Text("Parent · ${player.name}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.volleyDeep, modifier = Modifier.padding(top = 1.dp))
+        }
+
+        IconCircle("💬", onClick = onChat)
+    }
+}
+
+@Composable
 private fun IconCircle(emoji: String, onClick: () -> Unit) {
     Box(
         modifier = Modifier
@@ -155,7 +247,8 @@ private fun RosterScreenPreview() {
             role = UserRole.COACH,
             onMenuClick = {},
             onChatWithCoach = {},
-            onChatWithPlayer = {}
+            onChatWithPlayer = {},
+            onChatWithParent = {}
         )
     }
 }

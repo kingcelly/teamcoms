@@ -115,7 +115,8 @@ val seedChats = listOf(
             ChatParticipant("Lin Chen", "Parent · Maya Chen"),
             ChatParticipant("You", "You")
         ),
-        relatedPlayerId = "p1"
+        relatedPlayerId = "p1",
+        isParentChat = true
     ),
     ChatThread(
         id = "c4", teamId = "t2", name = "16U Rally",
