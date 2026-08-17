@@ -35,9 +35,11 @@ class AppRepository {
     private val _chatMessages = MutableStateFlow(seedChatMessages)
     val chatMessages: StateFlow<List<ChatMessage>> = _chatMessages.asStateFlow()
 
+    private val _schedule = MutableStateFlow(com.aceclub.teamapp.data.schedule)
+    val schedule: StateFlow<List<ScheduleEvent>> = _schedule.asStateFlow()
+
     val teams get() = com.aceclub.teamapp.data.teams
     val roster get() = com.aceclub.teamapp.data.roster
-    val schedule get() = com.aceclub.teamapp.data.schedule
 
     fun login(name: String, role: UserRole, teamId: String?) {
         _user.value = AppUser(name = name, role = role, teamId = teamId)
@@ -92,6 +94,53 @@ class AppRepository {
         _chats.value = _chats.value.map {
             if (it.id == chatId) it.copy(unreadCount = 0) else it
         }
+    }
+
+    fun addScheduleEvent(
+        teamId: String,
+        type: EventType,
+        title: String,
+        location: String,
+        startEpochMillis: Long,
+        endEpochMillis: Long
+    ) {
+        val new = ScheduleEvent(
+            id = "e${epochMillisNow()}",
+            teamId = teamId,
+            type = type,
+            title = title,
+            location = location,
+            startEpochMillis = startEpochMillis,
+            endEpochMillis = endEpochMillis
+        )
+        _schedule.value = _schedule.value + new
+    }
+
+    fun updateScheduleEvent(
+        eventId: String,
+        teamId: String,
+        type: EventType,
+        title: String,
+        location: String,
+        startEpochMillis: Long,
+        endEpochMillis: Long
+    ) {
+        _schedule.value = _schedule.value.map {
+            if (it.id == eventId) {
+                it.copy(
+                    teamId = teamId,
+                    type = type,
+                    title = title,
+                    location = location,
+                    startEpochMillis = startEpochMillis,
+                    endEpochMillis = endEpochMillis
+                )
+            } else it
+        }
+    }
+
+    fun deleteScheduleEvent(eventId: String) {
+        _schedule.value = _schedule.value.filter { it.id != eventId }
     }
 }
 

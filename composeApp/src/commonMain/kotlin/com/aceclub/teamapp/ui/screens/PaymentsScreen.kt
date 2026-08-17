@@ -28,6 +28,7 @@ import com.aceclub.teamapp.data.PaymentDue
 import com.aceclub.teamapp.data.PaymentStatus
 import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.isStaff
 import com.aceclub.teamapp.data.roster
 import com.aceclub.teamapp.data.seedPayments
 import com.aceclub.teamapp.data.teams
@@ -48,7 +49,7 @@ fun PaymentsScreen(
     onMarkPaid: (paymentId: String) -> Unit
 ) {
     val visible = remember(payments, roster, currentTeamId, role) {
-        if (role == UserRole.COACH) payments
+        if (role.isStaff) payments
         else {
             val teamPlayerIds = roster.filter { it.teamId == currentTeamId }.map { it.id }.toSet()
             payments.filter { it.playerId in teamPlayerIds }
@@ -105,7 +106,7 @@ private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole,
         Column(horizontalAlignment = Alignment.End) {
             Text("$${payment.amount}", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court)
             PaymentBadge(payment.status)
-            if (payment.status != PaymentStatus.PAID && role != UserRole.COACH) {
+            if (payment.status != PaymentStatus.PAID && !role.isStaff) {
                 Button(
                     onClick = { onMarkPaid(payment.id) },
                     colors = ButtonDefaults.buttonColors(containerColor = AceColors.volley),

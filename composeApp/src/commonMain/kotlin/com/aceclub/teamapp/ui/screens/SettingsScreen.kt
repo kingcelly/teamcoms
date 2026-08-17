@@ -48,7 +48,7 @@ fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, o
             }
             Text(user?.name ?: "", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink, modifier = Modifier.padding(top = 10.dp))
             Text(
-                "${if (user?.role?.name == "COACH") "Coach" else "Parent / Player"} · ${team?.name ?: ""}",
+                "${roleLabel(user?.role)} · ${team?.name ?: ""}",
                 fontSize = 13.sp, color = AceColors.inkSoft, modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -64,6 +64,13 @@ fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, o
             ProfileRow("↩\uFE0F  Log out", danger = true, onClick = onLogout)
         }
     }
+}
+
+private fun roleLabel(role: UserRole?): String = when (role) {
+    UserRole.COACH -> "Coach"
+    UserRole.ADMIN -> "Club Admin"
+    UserRole.PARENT -> "Parent / Player"
+    null -> ""
 }
 
 @Composable

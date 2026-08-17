@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.isStaff
 import com.aceclub.teamapp.data.roster
 import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
@@ -46,7 +47,7 @@ fun RosterScreen(
     onEmail: (email: String) -> Unit
 ) {
     val visibleTeams = remember(teams, currentTeamId, role) {
-        if (role == UserRole.COACH) teams else teams.filter { it.id == currentTeamId }
+        if (role.isStaff) teams else teams.filter { it.id == currentTeamId }
     }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {

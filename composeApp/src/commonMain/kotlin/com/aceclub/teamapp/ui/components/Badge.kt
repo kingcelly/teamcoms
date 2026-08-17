@@ -30,6 +30,7 @@ private fun toneFor(rsvp: RsvpResponse?): Tone = when (rsvp) {
 
 private fun toneFor(type: EventType): Tone = when (type) {
     EventType.PRACTICE -> Tone(AceColors.sand, AceColors.court, "Practice")
+    EventType.WEIGHTLIFTING -> Tone(AceColors.successBg, AceColors.success, "Weightlifting")
     EventType.GAME -> Tone(AceColors.warnBg, AceColors.volleyDeep, "Game")
     EventType.TOURNAMENT -> Tone(AceColors.goldBg, androidx.compose.ui.graphics.Color(0xFF9A7414), "Tournament")
 }

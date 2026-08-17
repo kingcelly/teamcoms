@@ -40,6 +40,7 @@ import com.aceclub.teamapp.ui.screens.LoginScreen
 import com.aceclub.teamapp.ui.screens.NewAnnouncementScreen
 import com.aceclub.teamapp.ui.screens.PaymentsScreen
 import com.aceclub.teamapp.ui.screens.RosterScreen
+import com.aceclub.teamapp.ui.screens.ScheduleEventFormScreen
 import com.aceclub.teamapp.ui.screens.ScheduleScreen
 import com.aceclub.teamapp.ui.screens.SettingsScreen
 import com.aceclub.teamapp.ui.theme.AceColors
@@ -66,6 +67,7 @@ fun App(
         val rsvps by repository.rsvps.collectAsState()
         val chats by repository.chats.collectAsState()
         val chatMessages by repository.chatMessages.collectAsState()
+        val schedule by repository.schedule.collectAsState()
 
         var screen by remember { mutableStateOf<Screen>(Screen.Login) }
 
@@ -119,6 +121,33 @@ fun App(
                 }
             }
 
+            is Screen.ScheduleEventForm -> {
+                val editingEvent = current.eventId?.let { id -> schedule.find { it.id == id } }
+                if (current.eventId != null && editingEvent == null) {
+                    screen = Screen.Main(Tab.Schedule)
+                } else {
+                    ScheduleEventFormScreen(
+                        teams = repository.teams,
+                        event = editingEvent,
+                        onCancel = { screen = Screen.Main(Tab.Schedule) },
+                        onSave = { teamId, type, title, location, start, end ->
+                            if (editingEvent == null) {
+                                repository.addScheduleEvent(teamId, type, title, location, start, end)
+                            } else {
+                                repository.updateScheduleEvent(editingEvent.id, teamId, type, title, location, start, end)
+                            }
+                            screen = Screen.Main(Tab.Schedule)
+                        },
+                        onDelete = if (editingEvent != null) {
+                            {
+                                repository.deleteScheduleEvent(editingEvent.id)
+                                screen = Screen.Main(Tab.Schedule)
+                            }
+                        } else null
+                    )
+                }
+            }
+
             is Screen.Main -> {
                 val u = user ?: return@AceVolleyballTheme
                 val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -157,13 +186,16 @@ fun App(
                             }
                         )
                         Tab.Schedule -> ScheduleScreen(
-                            schedule = repository.schedule,
+                            schedule = schedule,
                             teams = repository.teams,
                             currentTeamId = u.teamId,
                             role = u.role,
                             rsvps = rsvps,
                             onMenuClick = openMenu,
-                            onRsvp = { eventId, response -> repository.setRsvp(eventId, response) }
+                            onRsvp = { eventId, response -> repository.setRsvp(eventId, response) },
+                            onAddEvent = { screen = Screen.ScheduleEventForm() },
+                            onEditEvent = { event -> screen = Screen.ScheduleEventForm(event.id) },
+                            onDeleteEvent = { eventId -> repository.deleteScheduleEvent(eventId) }
                         )
                         Tab.Roster -> RosterScreen(
                             roster = repository.roster,

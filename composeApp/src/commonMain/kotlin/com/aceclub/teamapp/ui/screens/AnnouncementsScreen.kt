@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Announcement
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.isStaff
 import com.aceclub.teamapp.data.seedAnnouncements
 import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.theme.AceColors
@@ -56,7 +57,7 @@ fun AnnouncementsScreen(
             title = "Announcements",
             subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name },
             onMenuClick = onMenuClick,
-            trailing = if (role == UserRole.COACH) {
+            trailing = if (role.isStaff) {
                 {
                     IconButton(
                         onClick = onNewAnnouncement,
@@ -69,7 +70,7 @@ fun AnnouncementsScreen(
         if (sorted.isEmpty()) {
             com.aceclub.teamapp.ui.components.EmptyState(
                 title = "No announcements yet",
-                subtitle = if (role == UserRole.COACH) "Tap + to post the first one." else "Check back soon for club updates."
+                subtitle = if (role.isStaff) "Tap + to post the first one." else "Check back soon for club updates."
             )
         } else {
             LazyColumn(

@@ -1,6 +1,10 @@
 package com.aceclub.teamapp.data
 
-enum class UserRole { COACH, PARENT }
+enum class UserRole { COACH, ADMIN, PARENT }
+
+// Coaches and admins share the same staff-level permissions throughout the app
+// (posting announcements, managing the calendar, seeing every team's payments/roster).
+val UserRole.isStaff: Boolean get() = this == UserRole.COACH || this == UserRole.ADMIN
 
 data class AppUser(
     val name: String,
@@ -38,7 +42,7 @@ data class Announcement(
     val pinned: Boolean = false
 )
 
-enum class EventType { PRACTICE, GAME, TOURNAMENT }
+enum class EventType { PRACTICE, WEIGHTLIFTING, GAME, TOURNAMENT }
 
 data class ScheduleEvent(
     val id: String,

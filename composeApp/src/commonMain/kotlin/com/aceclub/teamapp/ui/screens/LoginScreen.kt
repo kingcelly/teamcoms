@@ -88,6 +88,9 @@ fun LoginScreen(
                     ChoiceChip("Parent / Player", role == UserRole.PARENT, Modifier.weight(1f)) { role = UserRole.PARENT }
                     ChoiceChip("Coach", role == UserRole.COACH, Modifier.weight(1f)) { role = UserRole.COACH }
                 }
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    ChoiceChip("Club Admin", role == UserRole.ADMIN, Modifier.weight(1f)) { role = UserRole.ADMIN }
+                }
 
                 FieldLabel("Team", topPadding = 18.dp)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {

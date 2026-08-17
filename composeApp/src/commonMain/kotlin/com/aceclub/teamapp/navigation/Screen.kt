@@ -20,4 +20,5 @@ sealed class Screen {
     data object NewAnnouncement : Screen()
     data class ChatConversation(val chatId: String) : Screen()
     data class ChatDetails(val chatId: String) : Screen()
+    data class ScheduleEventForm(val eventId: String? = null) : Screen()
 }
