@@ -20,6 +20,9 @@ class AppRepository {
     private val _user = MutableStateFlow<AppUser?>(null)
     val user: StateFlow<AppUser?> = _user.asStateFlow()
 
+    private val _accounts = MutableStateFlow(seedAccounts)
+    val accounts: StateFlow<List<AppUser>> = _accounts.asStateFlow()
+
     private val _announcements = MutableStateFlow(seedAnnouncements)
     val announcements: StateFlow<List<Announcement>> = _announcements.asStateFlow()
 
@@ -42,8 +45,27 @@ class AppRepository {
     val roster get() = com.aceclub.teamapp.data.roster
     val coaches get() = com.aceclub.teamapp.data.coaches
 
-    fun login(name: String, role: UserRole, teamId: String?) {
-        _user.value = AppUser(name = name, role = role, teamId = teamId)
+    /**
+     * Looks up a registered account by contact (email or phone) and signs in as it —
+     * role and team come from the account, not from anything typed at login.
+     * Password isn't verified yet; swap in a real check once a backend is wired in.
+     */
+    fun login(contact: String, password: String): Boolean {
+        val match = _accounts.value.find { it.contact.equals(contact.trim(), ignoreCase = true) }
+        if (match != null) _user.value = match
+        return match != null
+    }
+
+    /** Creates a new account (unassigned to a team until an admin adds them to one) and signs in as it. */
+    fun register(contact: String, name: String, role: UserRole): Boolean {
+        val normalized = contact.trim()
+        val exists = _accounts.value.any { it.contact.equals(normalized, ignoreCase = true) }
+        if (exists) return false
+
+        val new = AppUser(contact = normalized, name = name.trim(), role = role, teamId = null)
+        _accounts.value = _accounts.value + new
+        _user.value = new
+        return true
     }
 
     fun logout() {

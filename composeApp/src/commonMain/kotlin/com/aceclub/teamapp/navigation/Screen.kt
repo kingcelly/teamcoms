@@ -16,6 +16,7 @@ enum class Tab(val label: String, val icon: String) {
 
 sealed class Screen {
     data object Login : Screen()
+    data object Register : Screen()
     data class Main(val tab: Tab = Tab.Announcements) : Screen()
     data object NewAnnouncement : Screen()
     data class ChatConversation(val chatId: String) : Screen()

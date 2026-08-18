@@ -91,7 +91,7 @@ private fun ProfileRow(label: String, danger: Boolean = false, onClick: () -> Un
 private fun SettingsScreenPreview() {
     AceVolleyballTheme {
         SettingsScreen(
-            user = AppUser(name = "Kate Bishop", role = UserRole.PARENT, teamId = teams.first().id),
+            user = AppUser(contact = "kate.bishop@email.com", name = "Kate Bishop", role = UserRole.PARENT, teamId = teams.first().id),
             teams = teams,
             onMenuClick = {},
             onLogout = {}

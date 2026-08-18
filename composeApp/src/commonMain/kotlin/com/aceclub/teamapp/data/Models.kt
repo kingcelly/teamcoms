@@ -7,6 +7,7 @@ enum class UserRole { COACH, ADMIN, PARENT }
 val UserRole.isStaff: Boolean get() = this == UserRole.COACH || this == UserRole.ADMIN
 
 data class AppUser(
+    val contact: String, // email or phone used to sign in
     val name: String,
     val role: UserRole,
     val teamId: String?

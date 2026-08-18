@@ -39,6 +39,7 @@ import com.aceclub.teamapp.ui.screens.ChatsScreen
 import com.aceclub.teamapp.ui.screens.LoginScreen
 import com.aceclub.teamapp.ui.screens.NewAnnouncementScreen
 import com.aceclub.teamapp.ui.screens.PaymentsScreen
+import com.aceclub.teamapp.ui.screens.RegistrationScreen
 import com.aceclub.teamapp.ui.screens.RosterScreen
 import com.aceclub.teamapp.ui.screens.ScheduleEventFormScreen
 import com.aceclub.teamapp.ui.screens.ScheduleScreen
@@ -68,17 +69,27 @@ fun App() {
         var screen by remember { mutableStateOf<Screen>(Screen.Login) }
 
         // Whenever the user logs out, always fall back to the login screen.
-        if (user == null && screen !is Screen.Login) {
+        if (user == null && screen !is Screen.Login && screen !is Screen.Register) {
             screen = Screen.Login
         }
 
         when (val current = screen) {
             is Screen.Login -> LoginScreen(
-                teams = repository.teams,
-                onLogin = { name, role, teamId ->
-                    repository.login(name, role, teamId)
-                    screen = Screen.Main()
-                }
+                onLogin = { contact, password ->
+                    val success = repository.login(contact, password)
+                    if (success) screen = Screen.Main()
+                    success
+                },
+                onNavigateToRegister = { screen = Screen.Register }
+            )
+
+            is Screen.Register -> RegistrationScreen(
+                onRegister = { contact, name, role ->
+                    val success = repository.register(contact, name, role)
+                    if (success) screen = Screen.Main()
+                    success
+                },
+                onNavigateToLogin = { screen = Screen.Login }
             )
 
             is Screen.NewAnnouncement -> NewAnnouncementScreen(

@@ -17,6 +17,15 @@ val coaches = listOf(
     Coach(id = "co2", teamId = "t2", name = "Coach Diaz")
 )
 
+// Registered accounts, looked up by contact (email or phone) at login.
+// Replace with real accounts once a backend (Firebase/Supabase) is wired in — see README.
+val seedAccounts = listOf(
+    AppUser(contact = "reyes@aceclub.com", name = "Coach Reyes", role = UserRole.COACH, teamId = "t1"),
+    AppUser(contact = "diaz@aceclub.com", name = "Coach Diaz", role = UserRole.COACH, teamId = "t2"),
+    AppUser(contact = "office@aceclub.com", name = "Club Office", role = UserRole.ADMIN, teamId = null),
+    AppUser(contact = "lin.chen@email.com", name = "Lin Chen", role = UserRole.PARENT, teamId = "t1")
+)
+
 val roster = listOf(
     Player(
         id = "p1", teamId = "t1", name = "Maya Chen", number = 4, position = "Outside Hitter",
