@@ -67,7 +67,11 @@ fun AnnouncementsScreen(
             } else null
         )
 
-        if (sorted.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            com.aceclub.teamapp.ui.components.EmptyState(
+                title = "You are currently not assigned to a team. If this is an error please contact your admin."
+            )
+        } else if (sorted.isEmpty()) {
             com.aceclub.teamapp.ui.components.EmptyState(
                 title = "No announcements yet",
                 subtitle = if (role.isStaff) "Tap + to post the first one." else "Check back soon for club updates."

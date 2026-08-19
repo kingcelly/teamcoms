@@ -186,6 +186,7 @@ fun App() {
                             chats = chats,
                             teams = repository.teams,
                             currentTeamId = u.teamId,
+                            role = u.role,
                             onMenuClick = openMenu,
                             onOpenChat = { chatId ->
                                 repository.markChatRead(chatId)

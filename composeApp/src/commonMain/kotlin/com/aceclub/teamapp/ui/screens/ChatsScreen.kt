@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.ChatThread
 import com.aceclub.teamapp.data.Team
+import com.aceclub.teamapp.data.UserRole
 import com.aceclub.teamapp.data.epochMillisNow
 import com.aceclub.teamapp.data.seedChats
 import com.aceclub.teamapp.data.teams
@@ -41,6 +42,7 @@ fun ChatsScreen(
     chats: List<ChatThread>,
     teams: List<Team>,
     currentTeamId: String?,
+    role: UserRole,
     onMenuClick: () -> Unit,
     onOpenChat: (chatId: String) -> Unit
 ) {
@@ -57,7 +59,9 @@ fun ChatsScreen(
             onMenuClick = onMenuClick
         )
 
-        if (visible.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
+        } else if (visible.isEmpty()) {
             EmptyState(title = "No conversations yet", subtitle = "Team and club chats will show up here.")
         } else {
             LazyColumn(
@@ -142,6 +146,7 @@ private fun ChatsScreenPreview() {
             chats = seedChats,
             teams = teams,
             currentTeamId = teams.first().id,
+            role = UserRole.PARENT,
             onMenuClick = {},
             onOpenChat = {}
         )

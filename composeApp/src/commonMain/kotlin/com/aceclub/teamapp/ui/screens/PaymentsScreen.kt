@@ -64,7 +64,9 @@ fun PaymentsScreen(
             onMenuClick = onMenuClick
         )
 
-        if (visible.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
+        } else if (visible.isEmpty()) {
             EmptyState(title = "No dues right now", subtitle = "Fees and payment requests will show up here.")
         } else {
             LazyColumn(

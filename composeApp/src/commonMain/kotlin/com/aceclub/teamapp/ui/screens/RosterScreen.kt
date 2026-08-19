@@ -62,7 +62,9 @@ fun RosterScreen(
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
         ScreenHeader(title = "Roster", subtitle = "Coaches, players & parents", onMenuClick = onMenuClick)
 
-        if (roster.isEmpty() && coaches.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
+        } else if (roster.isEmpty() && coaches.isEmpty()) {
             EmptyState(title = "No roster yet", subtitle = "Coaches and players will show up here.")
         } else {
             LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {

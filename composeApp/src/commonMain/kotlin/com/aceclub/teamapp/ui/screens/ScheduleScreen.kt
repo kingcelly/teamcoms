@@ -83,7 +83,9 @@ fun ScheduleScreen(
             } else null
         )
 
-        if (grouped.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
+        } else if (grouped.isEmpty()) {
             EmptyState(
                 title = "Nothing on the calendar",
                 subtitle = if (role.isStaff) "Tap + to schedule practice, weightlifting, games or tournaments." else "Practices, games and tournaments will show up here."
