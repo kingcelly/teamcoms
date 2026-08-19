@@ -55,7 +55,6 @@ fun ScheduleScreen(
     currentTeamId: String?,
     role: UserRole,
     rsvps: Map<String, RsvpResponse>,
-    onMenuClick: () -> Unit,
     onRsvp: (eventId: String, response: RsvpResponse) -> Unit,
     onAddEvent: () -> Unit = {},
     onEditEvent: (ScheduleEvent) -> Unit = {},
@@ -72,7 +71,6 @@ fun ScheduleScreen(
         ScreenHeader(
             title = "Schedule",
             subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name } ?: "All teams",
-            onMenuClick = onMenuClick,
             trailing = if (role.isStaff) {
                 {
                     IconButton(
@@ -190,7 +188,6 @@ private fun ScheduleScreenPreview() {
             currentTeamId = teams.first().id,
             role = UserRole.PARENT,
             rsvps = emptyMap(),
-            onMenuClick = {},
             onRsvp = { _, _ -> }
         )
     }

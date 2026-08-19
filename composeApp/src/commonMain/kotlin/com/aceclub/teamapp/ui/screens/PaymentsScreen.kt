@@ -45,7 +45,7 @@ fun PaymentsScreen(
     roster: List<Player>,
     currentTeamId: String?,
     role: UserRole,
-    onMenuClick: () -> Unit,
+    onBack: () -> Unit,
     onMarkPaid: (paymentId: String) -> Unit
 ) {
     val visible = remember(payments, roster, currentTeamId, role) {
@@ -61,7 +61,7 @@ fun PaymentsScreen(
         ScreenHeader(
             title = "Payments",
             subtitle = if (totalDue > 0) "$$totalDue outstanding" else "All caught up",
-            onMenuClick = onMenuClick
+            onBackClick = onBack
         )
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
@@ -129,7 +129,7 @@ private fun PaymentsScreenPreview() {
             roster = roster,
             currentTeamId = teams.first().id,
             role = UserRole.PARENT,
-            onMenuClick = {},
+            onBack = {},
             onMarkPaid = {}
         )
     }

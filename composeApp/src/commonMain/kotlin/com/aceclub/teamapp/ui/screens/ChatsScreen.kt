@@ -43,7 +43,6 @@ fun ChatsScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
-    onMenuClick: () -> Unit,
     onOpenChat: (chatId: String) -> Unit
 ) {
     val visible = remember(chats, currentTeamId) {
@@ -55,8 +54,7 @@ fun ChatsScreen(
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
         ScreenHeader(
             title = "Chats",
-            subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name },
-            onMenuClick = onMenuClick
+            subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name }
         )
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
@@ -147,7 +145,6 @@ private fun ChatsScreenPreview() {
             teams = teams,
             currentTeamId = teams.first().id,
             role = UserRole.PARENT,
-            onMenuClick = {},
             onOpenChat = {}
         )
     }

@@ -1,32 +1,24 @@
 package com.aceclub.teamapp
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.ModalDrawerSheet
-import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.AppRepository
 import com.aceclub.teamapp.data.RsvpResponse
@@ -46,12 +38,12 @@ import com.aceclub.teamapp.ui.screens.ScheduleScreen
 import com.aceclub.teamapp.ui.screens.SettingsScreen
 import com.aceclub.teamapp.ui.theme.AceColors
 import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
-import kotlinx.coroutines.launch
 
 /**
  * Root composable - owns the single AppRepository instance and top-level
- * navigation state. Announcements is the home screen; every other
- * destination is reached through the hamburger menu drawer.
+ * navigation state. Announcements is the home screen; every other main
+ * destination is reached through the bottom nav bar; Payments and other
+ * one-off screens are pushed on top of it.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -155,93 +147,93 @@ fun App() {
                 }
             }
 
+            is Screen.Payments -> {
+                val u = user ?: return@AceVolleyballTheme
+                PaymentsScreen(
+                    payments = payments,
+                    roster = repository.roster,
+                    currentTeamId = u.teamId,
+                    role = u.role,
+                    onBack = { screen = Screen.Main(Tab.Settings) },
+                    onMarkPaid = { id -> repository.markPaid(id) }
+                )
+            }
+
             is Screen.Main -> {
                 val u = user ?: return@AceVolleyballTheme
-                val drawerState = rememberDrawerState(DrawerValue.Closed)
-                val scope = rememberCoroutineScope()
-                val openMenu: () -> Unit = { scope.launch { drawerState.open() } }
+                val chatUnreadCount = chats
+                    .filter { it.teamId == null || it.teamId == u.teamId }
+                    .sumOf { it.unreadCount }
 
-                ModalNavigationDrawer(
-                    drawerState = drawerState,
-                    drawerContent = {
-                        NavDrawerContent(
+                Scaffold(
+                    containerColor = AceColors.bg,
+                    bottomBar = {
+                        AppBottomNav(
                             active = current.tab,
-                            onSelect = { tab ->
-                                screen = Screen.Main(tab)
-                                scope.launch { drawerState.close() }
-                            }
+                            chatUnreadCount = chatUnreadCount,
+                            onSelect = { tab -> screen = Screen.Main(tab) }
                         )
                     }
-                ) {
-                    when (current.tab) {
-                        Tab.Announcements -> AnnouncementsScreen(
-                            announcements = announcements,
-                            teams = repository.teams,
-                            currentTeamId = u.teamId,
-                            role = u.role,
-                            onMenuClick = openMenu,
-                            onNewAnnouncement = { screen = Screen.NewAnnouncement }
-                        )
-                        Tab.Chats -> ChatsScreen(
-                            chats = chats,
-                            teams = repository.teams,
-                            currentTeamId = u.teamId,
-                            role = u.role,
-                            onMenuClick = openMenu,
-                            onOpenChat = { chatId ->
-                                repository.markChatRead(chatId)
-                                screen = Screen.ChatConversation(chatId)
-                            }
-                        )
-                        Tab.Schedule -> ScheduleScreen(
-                            schedule = schedule,
-                            teams = repository.teams,
-                            currentTeamId = u.teamId,
-                            role = u.role,
-                            rsvps = rsvps,
-                            onMenuClick = openMenu,
-                            onRsvp = { eventId, response -> repository.setRsvp(eventId, response) },
-                            onAddEvent = { screen = Screen.ScheduleEventForm() },
-                            onEditEvent = { event -> screen = Screen.ScheduleEventForm(event.id) },
-                            onDeleteEvent = { eventId -> repository.deleteScheduleEvent(eventId) }
-                        )
-                        Tab.Roster -> RosterScreen(
-                            roster = repository.roster,
-                            coaches = repository.coaches,
-                            teams = repository.teams,
-                            currentTeamId = u.teamId,
-                            role = u.role,
-                            onMenuClick = openMenu,
-                            onChatWithCoach = { coach ->
-                                val team = repository.teams.find { it.id == coach.teamId }
-                                if (team != null) {
-                                    val chatId = repository.openTeamChat(team)
+                ) { innerPadding ->
+                    Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                        when (current.tab) {
+                            Tab.Announcements -> AnnouncementsScreen(
+                                announcements = announcements,
+                                teams = repository.teams,
+                                currentTeamId = u.teamId,
+                                role = u.role,
+                                onNewAnnouncement = { screen = Screen.NewAnnouncement }
+                            )
+                            Tab.Chats -> ChatsScreen(
+                                chats = chats,
+                                teams = repository.teams,
+                                currentTeamId = u.teamId,
+                                role = u.role,
+                                onOpenChat = { chatId ->
+                                    repository.markChatRead(chatId)
                                     screen = Screen.ChatConversation(chatId)
                                 }
-                            },
-                            onChatWithPlayer = { player ->
-                                val chatId = repository.openChatWithPlayer(player)
-                                screen = Screen.ChatConversation(chatId)
-                            },
-                            onChatWithParent = { player ->
-                                val chatId = repository.openChatWithParent(player)
-                                screen = Screen.ChatConversation(chatId)
-                            }
-                        )
-                        Tab.Payments -> PaymentsScreen(
-                            payments = payments,
-                            roster = repository.roster,
-                            currentTeamId = u.teamId,
-                            role = u.role,
-                            onMenuClick = openMenu,
-                            onMarkPaid = { id -> repository.markPaid(id) }
-                        )
-                        Tab.Settings -> SettingsScreen(
-                            user = u,
-                            teams = repository.teams,
-                            onMenuClick = openMenu,
-                            onLogout = { repository.logout() }
-                        )
+                            )
+                            Tab.Schedule -> ScheduleScreen(
+                                schedule = schedule,
+                                teams = repository.teams,
+                                currentTeamId = u.teamId,
+                                role = u.role,
+                                rsvps = rsvps,
+                                onRsvp = { eventId, response -> repository.setRsvp(eventId, response) },
+                                onAddEvent = { screen = Screen.ScheduleEventForm() },
+                                onEditEvent = { event -> screen = Screen.ScheduleEventForm(event.id) },
+                                onDeleteEvent = { eventId -> repository.deleteScheduleEvent(eventId) }
+                            )
+                            Tab.Roster -> RosterScreen(
+                                roster = repository.roster,
+                                coaches = repository.coaches,
+                                teams = repository.teams,
+                                currentTeamId = u.teamId,
+                                role = u.role,
+                                onChatWithCoach = { coach ->
+                                    val team = repository.teams.find { it.id == coach.teamId }
+                                    if (team != null) {
+                                        val chatId = repository.openTeamChat(team)
+                                        screen = Screen.ChatConversation(chatId)
+                                    }
+                                },
+                                onChatWithPlayer = { player ->
+                                    val chatId = repository.openChatWithPlayer(player)
+                                    screen = Screen.ChatConversation(chatId)
+                                },
+                                onChatWithParent = { player ->
+                                    val chatId = repository.openChatWithParent(player)
+                                    screen = Screen.ChatConversation(chatId)
+                                }
+                            )
+                            Tab.Settings -> SettingsScreen(
+                                user = u,
+                                teams = repository.teams,
+                                onOpenPayments = { screen = Screen.Payments },
+                                onLogout = { repository.logout() }
+                            )
+                        }
                     }
                 }
             }
@@ -249,39 +241,32 @@ fun App() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun NavDrawerContent(active: Tab, onSelect: (Tab) -> Unit) {
-    ModalDrawerSheet {
-        Column(modifier = Modifier.padding(vertical = 20.dp)) {
-            Text(
-                "Ace Volleyball Club",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.ExtraBold,
-                color = AceColors.ink,
-                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+private fun AppBottomNav(active: Tab, chatUnreadCount: Int, onSelect: (Tab) -> Unit) {
+    NavigationBar(containerColor = AceColors.surface, contentColor = AceColors.ink) {
+        Tab.entries.forEach { tab ->
+            val badgeCount = if (tab == Tab.Chats) chatUnreadCount else 0
+            NavigationBarItem(
+                selected = tab == active,
+                onClick = { onSelect(tab) },
+                icon = {
+                    if (badgeCount > 0) {
+                        BadgedBox(badge = { Badge { Text("$badgeCount") } }) {
+                            Text(tab.icon, fontSize = 20.sp)
+                        }
+                    } else {
+                        Text(tab.icon, fontSize = 20.sp)
+                    }
+                },
+                label = { Text(tab.label, fontSize = 11.sp, fontWeight = FontWeight.SemiBold) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = AceColors.volleyDeep,
+                    selectedTextColor = AceColors.volleyDeep,
+                    unselectedIconColor = AceColors.inkSoft,
+                    unselectedTextColor = AceColors.inkSoft,
+                    indicatorColor = AceColors.sand
+                )
             )
-            HorizontalDivider(color = AceColors.line, modifier = Modifier.padding(bottom = 8.dp))
-            Tab.entries.forEach { tab ->
-                val isActive = tab == active
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onSelect(tab) }
-                        .background(if (isActive) AceColors.sand else Color.Transparent)
-                        .padding(horizontal = 24.dp, vertical = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(tab.icon, fontSize = 18.sp, modifier = Modifier.size(24.dp))
-                    Text(
-                        tab.label,
-                        fontSize = 15.sp,
-                        fontWeight = if (isActive) FontWeight.ExtraBold else FontWeight.SemiBold,
-                        color = if (isActive) AceColors.volleyDeep else AceColors.ink,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
-            }
         }
     }
 }

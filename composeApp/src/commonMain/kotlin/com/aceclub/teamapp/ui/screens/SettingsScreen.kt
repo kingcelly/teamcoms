@@ -30,11 +30,11 @@ import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, onLogout: () -> Unit) {
+fun SettingsScreen(user: AppUser?, teams: List<Team>, onOpenPayments: () -> Unit, onLogout: () -> Unit) {
     val team = teams.find { it.id == user?.teamId }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Settings", onMenuClick = onMenuClick)
+        ScreenHeader(title = "Settings")
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),
@@ -59,6 +59,7 @@ fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, o
                 .background(AceColors.surface, RoundedCornerShape(16.dp))
                 .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
         ) {
+            ProfileRow("💳  Payments", onClick = onOpenPayments)
             ProfileRow("🔔  Notification preferences") {}
             ProfileRow("👪  Manage players in household") {}
             ProfileRow("↩\uFE0F  Log out", danger = true, onClick = onLogout)
@@ -94,7 +95,7 @@ private fun SettingsScreenPreview() {
         SettingsScreen(
             user = AppUser(contact = "kate.bishop@email.com", name = "Kate Bishop", role = UserRole.PARENT, teamId = teams.first().id),
             teams = teams,
-            onMenuClick = {},
+            onOpenPayments = {},
             onLogout = {}
         )
     }

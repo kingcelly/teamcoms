@@ -48,7 +48,6 @@ fun RosterScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
-    onMenuClick: () -> Unit,
     onChatWithCoach: (Coach) -> Unit,
     onChatWithPlayer: (Player) -> Unit,
     onChatWithParent: (Player) -> Unit
@@ -60,7 +59,7 @@ fun RosterScreen(
     var collapsedTeamIds by remember { mutableStateOf(setOf<String>()) }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Roster", subtitle = "Coaches, players & parents", onMenuClick = onMenuClick)
+        ScreenHeader(title = "Roster", subtitle = "Coaches, players & parents")
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
             EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
@@ -247,7 +246,6 @@ private fun RosterScreenPreview() {
             teams = teams,
             currentTeamId = teams.first().id,
             role = UserRole.COACH,
-            onMenuClick = {},
             onChatWithCoach = {},
             onChatWithPlayer = {},
             onChatWithParent = {}
