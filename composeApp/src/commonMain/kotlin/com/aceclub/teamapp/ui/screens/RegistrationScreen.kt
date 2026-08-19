@@ -103,7 +103,8 @@ fun RegistrationScreen(
 
                 FieldLabel("I am a", topPadding = 18.dp)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                    ChoiceChip("Parent / Player", role == UserRole.PARENT, Modifier.weight(1f)) { role = UserRole.PARENT }
+                    ChoiceChip("Player", role == UserRole.PLAYER, Modifier.weight(1f)) { role = UserRole.PLAYER }
+                    ChoiceChip("Parent", role == UserRole.PARENT, Modifier.weight(1f)) { role = UserRole.PARENT }
                     ChoiceChip("Coach", role == UserRole.COACH, Modifier.weight(1f)) { role = UserRole.COACH }
                 }
 

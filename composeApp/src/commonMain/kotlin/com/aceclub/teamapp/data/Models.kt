@@ -1,6 +1,6 @@
 package com.aceclub.teamapp.data
 
-enum class UserRole { COACH, ADMIN, PARENT }
+enum class UserRole { COACH, ADMIN, PARENT, PLAYER }
 
 // Coaches and admins share the same staff-level permissions throughout the app
 // (posting announcements, managing the calendar, seeing every team's payments/roster).

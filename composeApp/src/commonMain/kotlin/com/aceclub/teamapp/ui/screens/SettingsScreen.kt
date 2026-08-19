@@ -69,7 +69,8 @@ fun SettingsScreen(user: AppUser?, teams: List<Team>, onMenuClick: () -> Unit, o
 private fun roleLabel(role: UserRole?): String = when (role) {
     UserRole.COACH -> "Coach"
     UserRole.ADMIN -> "Club Admin"
-    UserRole.PARENT -> "Parent / Player"
+    UserRole.PARENT -> "Parent"
+    UserRole.PLAYER -> "Player"
     null -> ""
 }
 
