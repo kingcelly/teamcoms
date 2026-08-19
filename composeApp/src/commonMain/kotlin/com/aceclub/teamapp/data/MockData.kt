@@ -189,7 +189,11 @@ val seedChatMessages = listOf(
 )
 
 val seedPayments = listOf(
-    PaymentDue(id = "pay1", playerId = "p1", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.DUE),
+    // Maya Chen is on a 4-installment plan for fall league dues — two paid, two still due.
+    PaymentDue(id = "pay1a", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-07-15", status = PaymentStatus.PAID, installmentNumber = 1, totalInstallments = 4),
+    PaymentDue(id = "pay1b", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-08-01", status = PaymentStatus.PAID, installmentNumber = 2, totalInstallments = 4),
+    PaymentDue(id = "pay1c", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-08-15", status = PaymentStatus.DUE, installmentNumber = 3, totalInstallments = 4),
+    PaymentDue(id = "pay1d", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-09-01", status = PaymentStatus.DUE, installmentNumber = 4, totalInstallments = 4),
     PaymentDue(id = "pay2", playerId = "p2", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),
     PaymentDue(id = "pay3", playerId = "p3", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.OVERDUE),
     PaymentDue(id = "pay4", playerId = "p4", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),

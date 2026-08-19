@@ -58,24 +58,23 @@ fun PaymentsScreen(
     val totalDue = visible.filter { it.status != PaymentStatus.PAID }.sumOf { it.amount }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(
-            title = "Payments",
-            subtitle = if (totalDue > 0) "$$totalDue outstanding" else "All caught up",
-            onBackClick = onBack
-        )
+        ScreenHeader(title = "Payments", onBackClick = onBack)
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
             EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
         } else if (visible.isEmpty()) {
             EmptyState(title = "No dues right now", subtitle = "Fees and payment requests will show up here.")
         } else {
-            LazyColumn(
-                modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                items(visible, key = { it.id }) { payment ->
-                    PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onMarkPaid)
+            Column(modifier = Modifier.weight(1f)) {
+                BalanceSummary(totalDue = totalDue)
+                LazyColumn(
+                    modifier = Modifier.weight(1f),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    items(visible, key = { it.id }) { payment ->
+                        PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onMarkPaid)
+                    }
                 }
             }
         }
@@ -87,6 +86,37 @@ fun PaymentsScreen(
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 12.dp)
         )
+    }
+}
+
+@Composable
+private fun BalanceSummary(totalDue: Int) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+            .background(AceColors.surface, RoundedCornerShape(16.dp))
+            .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
+            .padding(16.dp)
+    ) {
+        Text("BALANCE", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AceColors.inkSoft)
+        if (totalDue > 0) {
+            Text(
+                "$$totalDue outstanding",
+                fontSize = 22.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = AceColors.court,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        } else {
+            Text(
+                "$0 — no action required",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = AceColors.success,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
     }
 }
 
@@ -103,6 +133,7 @@ private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole,
         Column {
             Text(payment.label, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink)
             Text(playerName, fontSize = 13.sp, color = AceColors.inkSoft, modifier = Modifier.padding(top = 2.dp))
+            Text(planLabel(payment), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = AceColors.volleyDeep, modifier = Modifier.padding(top = 4.dp))
             Text("Due ${payment.dueDate}", fontSize = 12.sp, color = AceColors.inkSoft, modifier = Modifier.padding(top = 6.dp))
         }
         Column(horizontalAlignment = Alignment.End) {
@@ -119,6 +150,10 @@ private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole,
         }
     }
 }
+
+private fun planLabel(payment: PaymentDue): String =
+    if (payment.totalInstallments <= 1) "One-time payment"
+    else "Installment ${payment.installmentNumber} of ${payment.totalInstallments}"
 
 @Preview
 @Composable

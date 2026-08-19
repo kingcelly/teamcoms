@@ -71,7 +71,9 @@ data class PaymentDue(
     val label: String,
     val amount: Int,
     val dueDate: String, // e.g. "2026-08-15"
-    val status: PaymentStatus
+    val status: PaymentStatus,
+    val installmentNumber: Int = 1, // 1-based; e.g. 2 of a 4-installment plan
+    val totalInstallments: Int = 1  // 1 = paid in full, up to 8 installments
 )
 
 data class ChatParticipant(
