@@ -159,7 +159,8 @@ fun App() {
                         currentTeamId = u.teamId,
                         role = u.role,
                         onBack = { screen = Screen.Main(Tab.Settings) },
-                        onMarkPaid = { id -> repository.markPaid(id) }
+                        onPayNow = { id -> repository.payInstallment(id) },
+                        onPayInFull = { ids -> repository.payInFull(ids) }
                     )
                 }
             }

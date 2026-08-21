@@ -90,9 +90,12 @@ class AppRepository {
         _rsvps.value = _rsvps.value + (eventId to response)
     }
 
-    fun markPaid(paymentId: String) {
+    fun payInstallment(paymentId: String) = payInFull(listOf(paymentId))
+
+    fun payInFull(paymentIds: List<String>) {
+        val ids = paymentIds.toSet()
         _payments.value = _payments.value.map {
-            if (it.id == paymentId) it.copy(status = PaymentStatus.PAID) else it
+            if (it.id in ids) it.copy(status = PaymentStatus.PAID) else it
         }
     }
 

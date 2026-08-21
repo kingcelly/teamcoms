@@ -28,7 +28,6 @@ import com.aceclub.teamapp.data.PaymentDue
 import com.aceclub.teamapp.data.PaymentStatus
 import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.UserRole
-import com.aceclub.teamapp.data.isStaff
 import com.aceclub.teamapp.data.roster
 import com.aceclub.teamapp.data.seedPayments
 import com.aceclub.teamapp.data.teams
@@ -46,7 +45,8 @@ fun PaymentsScreen(
     currentTeamId: String?,
     role: UserRole,
     onBack: () -> Unit,
-    onMarkPaid: (paymentId: String) -> Unit
+    onPayNow: (paymentId: String) -> Unit,
+    onPayInFull: (paymentIds: List<String>) -> Unit
 ) {
     val visible = remember(payments, roster, currentTeamId, role) {
         if (role == UserRole.ADMIN) payments
@@ -55,14 +55,23 @@ fun PaymentsScreen(
             payments.filter { it.playerId in teamPlayerIds }
         }
     }
-    val totalDue = visible.filter { it.status != PaymentStatus.PAID }.sumOf { it.amount }
+    // Only show payment history plus overdue items and the single next upcoming due —
+    // the rest of a plan's future installments aren't due yet, so they stay hidden.
+    val displayed = remember(visible) {
+        val overdue = visible.filter { it.status == PaymentStatus.OVERDUE }.sortedBy { it.dueDate }
+        val nextDue = visible.filter { it.status == PaymentStatus.DUE }.minByOrNull { it.dueDate }
+        val paid = visible.filter { it.status == PaymentStatus.PAID }.sortedByDescending { it.dueDate }
+        overdue + listOfNotNull(nextDue) + paid
+    }
+    val unpaid = remember(visible) { visible.filter { it.status != PaymentStatus.PAID } }
+    val totalDue = unpaid.sumOf { it.amount }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
         ScreenHeader(title = "Payments", onBackClick = onBack)
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
             EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
-        } else if (visible.isEmpty()) {
+        } else if (displayed.isEmpty()) {
             EmptyState(title = "No dues right now", subtitle = "Fees and payment requests will show up here.")
         } else {
             Column(modifier = Modifier.weight(1f)) {
@@ -72,15 +81,26 @@ fun PaymentsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(visible, key = { it.id }) { payment ->
-                        PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onMarkPaid)
+                    items(displayed, key = { it.id }) { payment ->
+                        PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onPayNow)
                     }
+                }
+            }
+
+            if (role == UserRole.PARENT && totalDue > 0) {
+                Button(
+                    onClick = { onPayInFull(unpaid.map { it.id }) },
+                    colors = ButtonDefaults.buttonColors(containerColor = AceColors.court),
+                    shape = RoundedCornerShape(14.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 4.dp)
+                ) {
+                    Text("Pay in full — $$totalDue", fontWeight = FontWeight.ExtraBold, color = Color.White, modifier = Modifier.padding(vertical = 4.dp))
                 }
             }
         }
 
         Text(
-            "Demo only — \"Mark paid\" updates this app's local record. Connect a real processor (Stripe, Square) to collect actual payments.",
+            "Demo only — payments update this app's local record. Connect a real processor (Stripe, Square) to collect actual payments.",
             fontSize = 11.sp,
             color = AceColors.inkSoft,
             textAlign = TextAlign.Center,
@@ -121,7 +141,7 @@ private fun BalanceSummary(totalDue: Int) {
 }
 
 @Composable
-private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole, onMarkPaid: (String) -> Unit) {
+private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole, onPayNow: (String) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -139,13 +159,13 @@ private fun PaymentCard(payment: PaymentDue, playerName: String, role: UserRole,
         Column(horizontalAlignment = Alignment.End) {
             Text("$${payment.amount}", fontSize = 17.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court)
             PaymentBadge(payment.status)
-            if (payment.status != PaymentStatus.PAID && !role.isStaff) {
+            if (payment.status != PaymentStatus.PAID && role == UserRole.PARENT) {
                 Button(
-                    onClick = { onMarkPaid(payment.id) },
+                    onClick = { onPayNow(payment.id) },
                     colors = ButtonDefaults.buttonColors(containerColor = AceColors.volley),
                     shape = RoundedCornerShape(999.dp),
                     modifier = Modifier.padding(top = 8.dp)
-                ) { Text("Mark paid", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+                ) { Text("Pay now", fontSize = 12.sp, fontWeight = FontWeight.Bold, color = Color.White) }
             }
         }
     }
@@ -165,7 +185,8 @@ private fun PaymentsScreenPreview() {
             currentTeamId = teams.first().id,
             role = UserRole.PARENT,
             onBack = {},
-            onMarkPaid = {}
+            onPayNow = {},
+            onPayInFull = {}
         )
     }
 }
