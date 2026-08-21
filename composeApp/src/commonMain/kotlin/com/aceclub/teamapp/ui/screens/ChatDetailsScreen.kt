@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,10 @@ fun ChatDetailsScreen(
     chat: ChatThread,
     onBack: () -> Unit
 ) {
+    val sortedParticipants = remember(chat.participants) {
+        chat.participants.sortedBy { rolePriority(it.role) }
+    }
+
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
         ScreenHeader(title = chat.name, subtitle = "Conversation details", onBackClick = onBack)
 
@@ -71,7 +76,7 @@ fun ChatDetailsScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                items(chat.participants, key = { it.name }) { participant ->
+                items(sortedParticipants, key = { it.name }) { participant ->
                     ParticipantCard(participant)
                 }
             }
@@ -101,6 +106,16 @@ private fun ParticipantCard(participant: ChatParticipant) {
             Text(participant.role, fontSize = 13.sp, color = AceColors.inkSoft, modifier = Modifier.padding(top = 1.dp))
         }
     }
+}
+
+// The participant role is a free-form display string (e.g. "Coach · 14U Storm",
+// "Parent · Maya Chen"), so group by its leading role word rather than a strict enum match.
+private fun rolePriority(role: String): Int = when {
+    role.startsWith("Admin", ignoreCase = true) -> 0
+    role.startsWith("Coach", ignoreCase = true) -> 1
+    role.startsWith("Player", ignoreCase = true) -> 2
+    role.startsWith("Parent", ignoreCase = true) -> 3
+    else -> 4
 }
 
 @Preview
