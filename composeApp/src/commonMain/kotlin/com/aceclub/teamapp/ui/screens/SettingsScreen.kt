@@ -59,7 +59,9 @@ fun SettingsScreen(user: AppUser?, teams: List<Team>, onOpenPayments: () -> Unit
                 .background(AceColors.surface, RoundedCornerShape(16.dp))
                 .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
         ) {
-            ProfileRow("💳  Payments", onClick = onOpenPayments)
+            if (user?.role == UserRole.PARENT || user?.role == UserRole.ADMIN) {
+                ProfileRow("💳  Payments", onClick = onOpenPayments)
+            }
             ProfileRow("🔔  Notification preferences") {}
             ProfileRow("👪  Manage players in household") {}
             ProfileRow("↩\uFE0F  Log out", danger = true, onClick = onLogout)

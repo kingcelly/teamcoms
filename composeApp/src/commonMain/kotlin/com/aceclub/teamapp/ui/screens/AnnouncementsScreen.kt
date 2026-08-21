@@ -45,8 +45,10 @@ fun AnnouncementsScreen(
     role: UserRole,
     onNewAnnouncement: () -> Unit
 ) {
-    val sorted = remember(announcements) {
-        announcements.sortedWith(
+    val sorted = remember(announcements, currentTeamId, role) {
+        val scoped = if (role == UserRole.ADMIN) announcements
+            else announcements.filter { it.teamId == null || it.teamId == currentTeamId }
+        scoped.sortedWith(
             compareByDescending<Announcement> { it.pinned }.thenByDescending { it.createdAtEpochMillis }
         )
     }

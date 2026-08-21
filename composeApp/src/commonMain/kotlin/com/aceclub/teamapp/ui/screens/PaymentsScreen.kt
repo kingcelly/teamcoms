@@ -49,7 +49,7 @@ fun PaymentsScreen(
     onMarkPaid: (paymentId: String) -> Unit
 ) {
     val visible = remember(payments, roster, currentTeamId, role) {
-        if (role.isStaff) payments
+        if (role == UserRole.ADMIN) payments
         else {
             val teamPlayerIds = roster.filter { it.teamId == currentTeamId }.map { it.id }.toSet()
             payments.filter { it.playerId in teamPlayerIds }

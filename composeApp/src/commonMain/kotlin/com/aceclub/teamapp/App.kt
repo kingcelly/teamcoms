@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.AppRepository
 import com.aceclub.teamapp.data.RsvpResponse
+import com.aceclub.teamapp.data.UserRole
 import com.aceclub.teamapp.navigation.Screen
 import com.aceclub.teamapp.navigation.Tab
 import com.aceclub.teamapp.ui.screens.AnnouncementsScreen
@@ -149,14 +150,18 @@ fun App() {
 
             is Screen.Payments -> {
                 val u = user ?: return@AceVolleyballTheme
-                PaymentsScreen(
-                    payments = payments,
-                    roster = repository.roster,
-                    currentTeamId = u.teamId,
-                    role = u.role,
-                    onBack = { screen = Screen.Main(Tab.Settings) },
-                    onMarkPaid = { id -> repository.markPaid(id) }
-                )
+                if (u.role != UserRole.PARENT && u.role != UserRole.ADMIN) {
+                    screen = Screen.Main(Tab.Settings)
+                } else {
+                    PaymentsScreen(
+                        payments = payments,
+                        roster = repository.roster,
+                        currentTeamId = u.teamId,
+                        role = u.role,
+                        onBack = { screen = Screen.Main(Tab.Settings) },
+                        onMarkPaid = { id -> repository.markPaid(id) }
+                    )
+                }
             }
 
             is Screen.Main -> {

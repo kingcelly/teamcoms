@@ -32,7 +32,6 @@ import com.aceclub.teamapp.data.Player
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
 import com.aceclub.teamapp.data.coaches
-import com.aceclub.teamapp.data.isStaff
 import com.aceclub.teamapp.data.roster
 import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
@@ -53,7 +52,7 @@ fun RosterScreen(
     onChatWithParent: (Player) -> Unit
 ) {
     val visibleTeams = remember(teams, currentTeamId, role) {
-        if (role.isStaff) teams else teams.filter { it.id == currentTeamId }
+        if (role == UserRole.ADMIN) teams else teams.filter { it.id == currentTeamId }
     }
     val collapsible = visibleTeams.size > 1
     var collapsedTeamIds by remember { mutableStateOf(setOf<String>()) }
