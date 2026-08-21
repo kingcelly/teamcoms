@@ -2,6 +2,7 @@ package com.aceclub.teamapp.ui.screens
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,12 +17,16 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.PaymentDue
@@ -55,23 +60,27 @@ fun PaymentsScreen(
             payments.filter { it.playerId in teamPlayerIds }
         }
     }
-    // Only show payment history plus overdue items and the single next upcoming due —
-    // the rest of a plan's future installments aren't due yet, so they stay hidden.
-    val displayed = remember(visible) {
+    // Only show overdue items and the single next upcoming due — the rest of a plan's
+    // future installments aren't due yet, so they stay hidden until they become "next".
+    // Payment history goes in the separate, collapsible "Past transactions" section below.
+    val nextAndOverdue = remember(visible) {
         val overdue = visible.filter { it.status == PaymentStatus.OVERDUE }.sortedBy { it.dueDate }
         val nextDue = visible.filter { it.status == PaymentStatus.DUE }.minByOrNull { it.dueDate }
-        val paid = visible.filter { it.status == PaymentStatus.PAID }.sortedByDescending { it.dueDate }
-        overdue + listOfNotNull(nextDue) + paid
+        overdue + listOfNotNull(nextDue)
+    }
+    val pastTransactions = remember(visible) {
+        visible.filter { it.status == PaymentStatus.PAID }.sortedByDescending { it.dueDate }
     }
     val unpaid = remember(visible) { visible.filter { it.status != PaymentStatus.PAID } }
     val totalDue = unpaid.sumOf { it.amount }
+    var pastExpanded by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
         ScreenHeader(title = "Payments", onBackClick = onBack)
 
         if (role != UserRole.ADMIN && currentTeamId == null) {
             EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
-        } else if (displayed.isEmpty()) {
+        } else if (visible.isEmpty()) {
             EmptyState(title = "No dues right now", subtitle = "Fees and payment requests will show up here.")
         } else {
             Column(modifier = Modifier.weight(1f)) {
@@ -81,8 +90,27 @@ fun PaymentsScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(displayed, key = { it.id }) { payment ->
-                        PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onPayNow)
+                    if (nextAndOverdue.isNotEmpty()) {
+                        item { SectionLabel("Next & overdue") }
+                        items(nextAndOverdue, key = { it.id }) { payment ->
+                            PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onPayNow)
+                        }
+                    }
+                    if (pastTransactions.isNotEmpty()) {
+                        item {
+                            CollapsibleSectionHeader(
+                                title = "Past transactions",
+                                count = pastTransactions.size,
+                                expanded = pastExpanded,
+                                onToggle = { pastExpanded = !pastExpanded },
+                                topPadding = if (nextAndOverdue.isNotEmpty()) 8.dp else 0.dp
+                            )
+                        }
+                        if (pastExpanded) {
+                            items(pastTransactions, key = { it.id }) { payment ->
+                                PaymentCard(payment, roster.find { it.id == payment.playerId }?.name ?: "", role, onPayNow)
+                            }
+                        }
                     }
                 }
             }
@@ -137,6 +165,32 @@ private fun BalanceSummary(totalDue: Int) {
                 modifier = Modifier.padding(top = 4.dp)
             )
         }
+    }
+}
+
+@Composable
+private fun SectionLabel(text: String) {
+    Text(
+        text.uppercase(),
+        fontSize = 11.sp,
+        fontWeight = FontWeight.Bold,
+        color = AceColors.inkSoft,
+        modifier = Modifier.padding(bottom = 6.dp)
+    )
+}
+
+@Composable
+private fun CollapsibleSectionHeader(title: String, count: Int, expanded: Boolean, topPadding: Dp, onToggle: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onToggle)
+            .padding(top = topPadding, bottom = 6.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text("${title.uppercase()} ($count)", fontSize = 11.sp, fontWeight = FontWeight.Bold, color = AceColors.inkSoft)
+        Text(if (expanded) "▾" else "▸", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court)
     }
 }
 
