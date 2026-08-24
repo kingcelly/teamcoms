@@ -18,11 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -32,7 +29,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.EventType
-import com.aceclub.teamapp.data.RsvpResponse
 import com.aceclub.teamapp.data.ScheduleEvent
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
@@ -55,8 +51,6 @@ fun ScheduleScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
-    rsvps: Map<String, RsvpResponse>,
-    onRsvp: (eventId: String, response: RsvpResponse) -> Unit,
     onAddEvent: () -> Unit = {},
     onEditEvent: (ScheduleEvent) -> Unit = {},
     onDeleteEvent: (eventId: String) -> Unit = {}
@@ -96,7 +90,7 @@ fun ScheduleScreen(
                         Text(day.uppercase(), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court, modifier = Modifier.padding(bottom = 8.dp))
                     }
                     items(events, key = { it.id }) { event ->
-                        EventCard(event, role, rsvps[event.id], onRsvp, onEditEvent, onDeleteEvent)
+                        EventCard(event, role, onEditEvent, onDeleteEvent)
                     }
                 }
             }
@@ -108,8 +102,6 @@ fun ScheduleScreen(
 private fun EventCard(
     event: ScheduleEvent,
     role: UserRole,
-    rsvp: RsvpResponse?,
-    onRsvp: (String, RsvpResponse) -> Unit,
     onEditEvent: (ScheduleEvent) -> Unit,
     onDeleteEvent: (String) -> Unit
 ) {
@@ -137,26 +129,6 @@ private fun EventCard(
             }
             Text(event.title, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink, modifier = Modifier.padding(top = 6.dp, bottom = 4.dp))
             Text("📍 ${event.location}", fontSize = 13.sp, color = AceColors.inkSoft)
-
-            if (!role.isStaff) {
-                Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RsvpButton("Going", rsvp == RsvpResponse.YES) { onRsvp(event.id, RsvpResponse.YES) }
-                    RsvpButton("Can't go", rsvp == RsvpResponse.NO) { onRsvp(event.id, RsvpResponse.NO) }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RsvpButton(label: String, active: Boolean, onClick: () -> Unit) {
-    if (active) {
-        Button(onClick = onClick, colors = ButtonDefaults.buttonColors(containerColor = AceColors.sand), shape = RoundedCornerShape(999.dp)) {
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AceColors.ink)
-        }
-    } else {
-        OutlinedButton(onClick = onClick, shape = RoundedCornerShape(999.dp)) {
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AceColors.inkSoft)
         }
     }
 }
@@ -187,9 +159,7 @@ private fun ScheduleScreenPreview() {
             schedule = schedule,
             teams = teams,
             currentTeamId = teams.first().id,
-            role = UserRole.PARENT,
-            rsvps = emptyMap(),
-            onRsvp = { _, _ -> }
+            role = UserRole.PARENT
         )
     }
 }

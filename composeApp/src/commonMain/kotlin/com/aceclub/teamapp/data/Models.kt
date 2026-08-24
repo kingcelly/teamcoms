@@ -61,8 +61,6 @@ data class ScheduleEvent(
     val endEpochMillis: Long
 )
 
-enum class RsvpResponse { YES, NO }
-
 enum class PaymentStatus { PAID, DUE, OVERDUE }
 
 data class PaymentDue(

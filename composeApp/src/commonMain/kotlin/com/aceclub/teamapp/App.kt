@@ -61,7 +61,6 @@ fun App() {
         val user by repository.user.collectAsState()
         val announcements by repository.announcements.collectAsState()
         val payments by repository.payments.collectAsState()
-        val rsvps by repository.rsvps.collectAsState()
         val chats by repository.chats.collectAsState()
         val chatMessages by repository.chatMessages.collectAsState()
         val schedule by repository.schedule.collectAsState()
@@ -215,8 +214,6 @@ fun App() {
                         teams = repository.teams,
                         currentTeamId = u.teamId,
                         role = u.role,
-                        rsvps = rsvps,
-                        onRsvp = { eventId, response -> repository.setRsvp(eventId, response) },
                         onAddEvent = { navController.navigate(Routes.scheduleEventForm()) },
                         onEditEvent = { event -> navController.navigate(Routes.scheduleEventForm(event.id)) },
                         onDeleteEvent = { eventId -> repository.deleteScheduleEvent(eventId) }

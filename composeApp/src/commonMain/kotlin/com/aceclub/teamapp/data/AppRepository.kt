@@ -29,9 +29,6 @@ class AppRepository {
     private val _payments = MutableStateFlow(seedPayments)
     val payments: StateFlow<List<PaymentDue>> = _payments.asStateFlow()
 
-    private val _rsvps = MutableStateFlow<Map<String, RsvpResponse>>(emptyMap())
-    val rsvps: StateFlow<Map<String, RsvpResponse>> = _rsvps.asStateFlow()
-
     private val _chats = MutableStateFlow(seedChats)
     val chats: StateFlow<List<ChatThread>> = _chats.asStateFlow()
 
@@ -84,10 +81,6 @@ class AppRepository {
             pinned = false
         )
         _announcements.value = listOf(new) + _announcements.value
-    }
-
-    fun setRsvp(eventId: String, response: RsvpResponse) {
-        _rsvps.value = _rsvps.value + (eventId to response)
     }
 
     fun payInstallment(paymentId: String) = payInFull(listOf(paymentId))
