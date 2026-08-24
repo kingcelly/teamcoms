@@ -66,7 +66,7 @@ fun ChatDetailsScreen(
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold,
             color = AceColors.inkSoft,
-            modifier = Modifier.padding(horizontal = 20.dp, bottom = 8.dp)
+            modifier = Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp)
         )
 
         if (chat.participants.isEmpty()) {
