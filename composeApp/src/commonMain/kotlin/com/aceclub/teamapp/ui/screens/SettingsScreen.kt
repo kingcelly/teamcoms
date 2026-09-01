@@ -22,15 +22,19 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.AppUser
 import com.aceclub.teamapp.data.Team
+import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun ProfileScreen(user: AppUser?, teams: List<Team>, onLogout: () -> Unit) {
+fun SettingsScreen(user: AppUser?, teams: List<Team>, onOpenPayments: () -> Unit, onLogout: () -> Unit) {
     val team = teams.find { it.id == user?.teamId }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Profile")
+        ScreenHeader(title = "Settings")
 
         Column(
             modifier = Modifier.fillMaxWidth().padding(vertical = 28.dp),
@@ -44,7 +48,7 @@ fun ProfileScreen(user: AppUser?, teams: List<Team>, onLogout: () -> Unit) {
             }
             Text(user?.name ?: "", fontSize = 18.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink, modifier = Modifier.padding(top = 10.dp))
             Text(
-                "${if (user?.role?.name == "COACH") "Coach" else "Parent / Player"} · ${team?.name ?: ""}",
+                "${roleLabel(user?.role)} · ${team?.name ?: ""}",
                 fontSize = 13.sp, color = AceColors.inkSoft, modifier = Modifier.padding(top = 2.dp)
             )
         }
@@ -55,11 +59,22 @@ fun ProfileScreen(user: AppUser?, teams: List<Team>, onLogout: () -> Unit) {
                 .background(AceColors.surface, RoundedCornerShape(16.dp))
                 .border(1.dp, AceColors.line, RoundedCornerShape(16.dp))
         ) {
+            if (user?.role == UserRole.PARENT || user?.role == UserRole.ADMIN) {
+                ProfileRow("💳  Payments", onClick = onOpenPayments)
+            }
             ProfileRow("🔔  Notification preferences") {}
             ProfileRow("👪  Manage players in household") {}
             ProfileRow("↩\uFE0F  Log out", danger = true, onClick = onLogout)
         }
     }
+}
+
+private fun roleLabel(role: UserRole?): String = when (role) {
+    UserRole.COACH -> "Coach"
+    UserRole.ADMIN -> "Club Admin"
+    UserRole.PARENT -> "Parent"
+    UserRole.PLAYER -> "Player"
+    null -> ""
 }
 
 @Composable
@@ -72,5 +87,18 @@ private fun ProfileRow(label: String, danger: Boolean = false, onClick: () -> Un
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(label, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = if (danger) AceColors.danger else AceColors.ink)
+    }
+}
+
+@Preview
+@Composable
+private fun SettingsScreenPreview() {
+    AceVolleyballTheme {
+        SettingsScreen(
+            user = AppUser(contact = "kate.bishop@email.com", name = "Kate Bishop", role = UserRole.PARENT, teamId = teams.first().id),
+            teams = teams,
+            onOpenPayments = {},
+            onLogout = {}
+        )
     }
 }

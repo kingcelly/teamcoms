@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.EventType
 import com.aceclub.teamapp.data.PaymentStatus
-import com.aceclub.teamapp.data.RsvpResponse
 import com.aceclub.teamapp.ui.theme.AceColors
 
 private data class Tone(val bg: androidx.compose.ui.graphics.Color, val fg: androidx.compose.ui.graphics.Color, val label: String)
@@ -22,23 +21,15 @@ private fun toneFor(paymentStatus: PaymentStatus): Tone = when (paymentStatus) {
     PaymentStatus.OVERDUE -> Tone(AceColors.dangerBg, AceColors.danger, "Overdue")
 }
 
-private fun toneFor(rsvp: RsvpResponse?): Tone = when (rsvp) {
-    RsvpResponse.YES -> Tone(AceColors.successBg, AceColors.success, "Going")
-    RsvpResponse.NO -> Tone(AceColors.dangerBg, AceColors.danger, "Can't go")
-    null -> Tone(AceColors.sand, AceColors.inkSoft, "No response")
-}
-
 private fun toneFor(type: EventType): Tone = when (type) {
     EventType.PRACTICE -> Tone(AceColors.sand, AceColors.court, "Practice")
+    EventType.WEIGHTLIFTING -> Tone(AceColors.successBg, AceColors.success, "Weightlifting")
     EventType.GAME -> Tone(AceColors.warnBg, AceColors.volleyDeep, "Game")
     EventType.TOURNAMENT -> Tone(AceColors.goldBg, androidx.compose.ui.graphics.Color(0xFF9A7414), "Tournament")
 }
 
 @Composable
 fun PaymentBadge(status: PaymentStatus) = TonedBadge(toneFor(status))
-
-@Composable
-fun RsvpBadge(response: RsvpResponse?) = TonedBadge(toneFor(response))
 
 @Composable
 fun EventTypeBadge(type: EventType) = TonedBadge(toneFor(type))

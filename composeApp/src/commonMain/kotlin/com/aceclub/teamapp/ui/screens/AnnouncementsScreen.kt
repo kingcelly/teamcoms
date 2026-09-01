@@ -30,7 +30,12 @@ import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.Announcement
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.isStaff
+import com.aceclub.teamapp.data.seedAnnouncements
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun AnnouncementsScreen(
@@ -40,8 +45,10 @@ fun AnnouncementsScreen(
     role: UserRole,
     onNewAnnouncement: () -> Unit
 ) {
-    val sorted = remember(announcements) {
-        announcements.sortedWith(
+    val sorted = remember(announcements, currentTeamId, role) {
+        val scoped = if (role == UserRole.ADMIN) announcements
+            else announcements.filter { it.teamId == null || it.teamId == currentTeamId }
+        scoped.sortedWith(
             compareByDescending<Announcement> { it.pinned }.thenByDescending { it.createdAtEpochMillis }
         )
     }
@@ -50,7 +57,7 @@ fun AnnouncementsScreen(
         com.aceclub.teamapp.ui.components.ScreenHeader(
             title = "Announcements",
             subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name },
-            trailing = if (role == UserRole.COACH) {
+            trailing = if (role.isStaff) {
                 {
                     IconButton(
                         onClick = onNewAnnouncement,
@@ -60,10 +67,14 @@ fun AnnouncementsScreen(
             } else null
         )
 
-        if (sorted.isEmpty()) {
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            com.aceclub.teamapp.ui.components.EmptyState(
+                title = "You are currently not assigned to a team. If this is an error please contact your admin."
+            )
+        } else if (sorted.isEmpty()) {
             com.aceclub.teamapp.ui.components.EmptyState(
                 title = "No announcements yet",
-                subtitle = if (role == UserRole.COACH) "Tap + to post the first one." else "Check back soon for club updates."
+                subtitle = if (role.isStaff) "Tap + to post the first one." else "Check back soon for club updates."
             )
         } else {
             LazyColumn(
@@ -113,3 +124,17 @@ private fun timeAgo(epochMillis: Long): String {
 }
 
 private fun epochMillisNowSafe(): Long = com.aceclub.teamapp.data.epochMillisNow()
+
+@Preview
+@Composable
+private fun AnnouncementsScreenPreview() {
+    AceVolleyballTheme {
+        AnnouncementsScreen(
+            announcements = seedAnnouncements,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            role = UserRole.COACH,
+            onNewAnnouncement = {}
+        )
+    }
+}

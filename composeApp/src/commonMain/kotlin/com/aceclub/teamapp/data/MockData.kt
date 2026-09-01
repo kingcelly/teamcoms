@@ -12,6 +12,20 @@ val teams = listOf(
     Team(id = "t2", name = "16U Rally")
 )
 
+val coaches = listOf(
+    Coach(id = "co1", teamId = "t1", name = "Coach Reyes"),
+    Coach(id = "co2", teamId = "t2", name = "Coach Diaz")
+)
+
+// Registered accounts, looked up by contact (email or phone) at login.
+// Replace with real accounts once a backend (Firebase/Supabase) is wired in — see README.
+val seedAccounts = listOf(
+    AppUser(contact = "reyes@aceclub.com", name = "Coach Reyes", role = UserRole.COACH, teamId = "t1"),
+    AppUser(contact = "diaz@aceclub.com", name = "Coach Diaz", role = UserRole.COACH, teamId = "t2"),
+    AppUser(contact = "office@aceclub.com", name = "Club Office", role = UserRole.ADMIN, teamId = null),
+    AppUser(contact = "lin.chen@email.com", name = "Lin Chen", role = UserRole.PARENT, teamId = "t1")
+)
+
 val roster = listOf(
     Player(
         id = "p1", teamId = "t1", name = "Maya Chen", number = 4, position = "Outside Hitter",
@@ -79,8 +93,107 @@ val schedule = listOf(
     )
 )
 
+val seedChats = listOf(
+    ChatThread(
+        id = "c1", teamId = null, name = "Club Office",
+        lastMessage = "Fall league registration closes August 20th — don't forget!",
+        lastMessageAtEpochMillis = iso("2026-08-05T20:15:00Z"), unreadCount = 2,
+        participants = listOf(
+            ChatParticipant("Club Office", "Admin"),
+            ChatParticipant("Coach Reyes", "Coach · 14U Storm"),
+            ChatParticipant("You", "You")
+        )
+    ),
+    ChatThread(
+        id = "c2", teamId = "t1", name = "14U Storm",
+        lastMessage = "Coach Reyes: See everyone Thursday in the West Gym.",
+        lastMessageAtEpochMillis = iso("2026-08-05T14:40:00Z"),
+        participants = listOf(
+            ChatParticipant("Coach Reyes", "Coach"),
+            ChatParticipant("Lin Chen", "Parent · Maya Chen"),
+            ChatParticipant("Diego Torres", "Parent · Ava Torres"),
+            ChatParticipant("Kate Bishop", "Parent · Nora Bishop"),
+            ChatParticipant("You", "You")
+        )
+    ),
+    ChatThread(
+        id = "c3", teamId = "t1", name = "Lin Chen (Maya's parent)",
+        lastMessage = "Thanks for the update, we'll be there!",
+        lastMessageAtEpochMillis = iso("2026-08-04T23:05:00Z"),
+        participants = listOf(
+            ChatParticipant("Lin Chen", "Parent · Maya Chen"),
+            ChatParticipant("You", "You")
+        ),
+        relatedPlayerId = "p1",
+        isParentChat = true
+    ),
+    ChatThread(
+        id = "c4", teamId = "t2", name = "16U Rally",
+        lastMessage = "Susan Lee: Is the tournament schedule posted yet?",
+        lastMessageAtEpochMillis = iso("2026-08-03T18:20:00Z"), unreadCount = 1,
+        participants = listOf(
+            ChatParticipant("Coach Diaz", "Coach"),
+            ChatParticipant("Susan Lee", "Parent · Jordan Lee"),
+            ChatParticipant("Marco Ramirez", "Parent · Ella Ramirez"),
+            ChatParticipant("You", "You")
+        )
+    )
+)
+
+val seedChatMessages = listOf(
+    ChatMessage(
+        id = "m1-1", chatId = "c1", senderName = "Club Office",
+        body = "Hi all! Just a heads up that fall league registration is now open.",
+        sentAtEpochMillis = iso("2026-08-04T15:00:00Z")
+    ),
+    ChatMessage(
+        id = "m1-2", chatId = "c1", senderName = "Me",
+        body = "Thanks — will registration close before the tournament?",
+        sentAtEpochMillis = iso("2026-08-04T15:20:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m1-3", chatId = "c1", senderName = "Club Office",
+        body = "Fall league registration closes August 20th — don't forget!",
+        sentAtEpochMillis = iso("2026-08-05T20:15:00Z")
+    ),
+    ChatMessage(
+        id = "m2-1", chatId = "c2", senderName = "Coach Reyes",
+        body = "Quick note: practice is moving to the West Gym this Thursday.",
+        sentAtEpochMillis = iso("2026-08-05T14:00:00Z")
+    ),
+    ChatMessage(
+        id = "m2-2", chatId = "c2", senderName = "Me",
+        body = "Got it, thanks Coach!",
+        sentAtEpochMillis = iso("2026-08-05T14:10:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m2-3", chatId = "c2", senderName = "Coach Reyes",
+        body = "See everyone Thursday in the West Gym.",
+        sentAtEpochMillis = iso("2026-08-05T14:40:00Z")
+    ),
+    ChatMessage(
+        id = "m3-1", chatId = "c3", senderName = "Me",
+        body = "Hi Lin, just confirming Maya is set for Saturday's drills.",
+        sentAtEpochMillis = iso("2026-08-04T22:50:00Z"), fromMe = true
+    ),
+    ChatMessage(
+        id = "m3-2", chatId = "c3", senderName = "Lin Chen",
+        body = "Thanks for the update, we'll be there!",
+        sentAtEpochMillis = iso("2026-08-04T23:05:00Z")
+    ),
+    ChatMessage(
+        id = "m4-1", chatId = "c4", senderName = "Susan Lee",
+        body = "Is the tournament schedule posted yet?",
+        sentAtEpochMillis = iso("2026-08-03T18:20:00Z")
+    )
+)
+
 val seedPayments = listOf(
-    PaymentDue(id = "pay1", playerId = "p1", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.DUE),
+    // Maya Chen is on a 4-installment plan for fall league dues — two paid, two still due.
+    PaymentDue(id = "pay1a", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-07-15", status = PaymentStatus.PAID, installmentNumber = 1, totalInstallments = 4),
+    PaymentDue(id = "pay1b", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-08-01", status = PaymentStatus.PAID, installmentNumber = 2, totalInstallments = 4),
+    PaymentDue(id = "pay1c", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-08-15", status = PaymentStatus.DUE, installmentNumber = 3, totalInstallments = 4),
+    PaymentDue(id = "pay1d", playerId = "p1", label = "Fall league dues", amount = 50, dueDate = "2026-09-01", status = PaymentStatus.DUE, installmentNumber = 4, totalInstallments = 4),
     PaymentDue(id = "pay2", playerId = "p2", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),
     PaymentDue(id = "pay3", playerId = "p3", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.OVERDUE),
     PaymentDue(id = "pay4", playerId = "p4", label = "Fall league dues", amount = 185, dueDate = "2026-08-15", status = PaymentStatus.PAID),

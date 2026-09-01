@@ -9,13 +9,17 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -25,17 +29,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.aceclub.teamapp.data.EventType
-import com.aceclub.teamapp.data.RsvpResponse
 import com.aceclub.teamapp.data.ScheduleEvent
 import com.aceclub.teamapp.data.Team
 import com.aceclub.teamapp.data.UserRole
+import com.aceclub.teamapp.data.isStaff
+import com.aceclub.teamapp.data.schedule
+import com.aceclub.teamapp.data.teams
 import com.aceclub.teamapp.ui.components.EmptyState
 import com.aceclub.teamapp.ui.components.EventTypeBadge
 import com.aceclub.teamapp.ui.components.ScreenHeader
 import com.aceclub.teamapp.ui.theme.AceColors
+import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun ScheduleScreen(
@@ -43,8 +51,9 @@ fun ScheduleScreen(
     teams: List<Team>,
     currentTeamId: String?,
     role: UserRole,
-    rsvps: Map<String, RsvpResponse>,
-    onRsvp: (eventId: String, response: RsvpResponse) -> Unit
+    onAddEvent: () -> Unit = {},
+    onEditEvent: (ScheduleEvent) -> Unit = {},
+    onDeleteEvent: (eventId: String) -> Unit = {}
 ) {
     val grouped = remember(schedule, currentTeamId) {
         schedule
@@ -54,10 +63,26 @@ fun ScheduleScreen(
     }
 
     Column(modifier = Modifier.fillMaxSize().background(AceColors.bg)) {
-        ScreenHeader(title = "Schedule", subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name } ?: "All teams")
+        ScreenHeader(
+            title = "Schedule",
+            subtitle = currentTeamId?.let { id -> teams.find { it.id == id }?.name } ?: "All teams",
+            trailing = if (role.isStaff) {
+                {
+                    IconButton(
+                        onClick = onAddEvent,
+                        modifier = Modifier.size(36.dp).background(AceColors.volley, RoundedCornerShape(18.dp))
+                    ) { Icon(Icons.Filled.Add, contentDescription = "New event", tint = Color.White) }
+                }
+            } else null
+        )
 
-        if (grouped.isEmpty()) {
-            EmptyState(title = "Nothing on the calendar", subtitle = "Practices, games and tournaments will show up here.")
+        if (role != UserRole.ADMIN && currentTeamId == null) {
+            EmptyState(title = "You are currently not assigned to a team. If this is an error please contact your admin.")
+        } else if (grouped.isEmpty()) {
+            EmptyState(
+                title = "Nothing on the calendar",
+                subtitle = if (role.isStaff) "Tap + to schedule practice, weightlifting, games or tournaments." else "Practices, games and tournaments will show up here."
+            )
         } else {
             LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 grouped.forEach { (day, events) ->
@@ -65,7 +90,7 @@ fun ScheduleScreen(
                         Text(day.uppercase(), fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.court, modifier = Modifier.padding(bottom = 8.dp))
                     }
                     items(events, key = { it.id }) { event ->
-                        EventCard(event, role, rsvps[event.id], onRsvp)
+                        EventCard(event, role, onEditEvent, onDeleteEvent)
                     }
                 }
             }
@@ -74,7 +99,12 @@ fun ScheduleScreen(
 }
 
 @Composable
-private fun EventCard(event: ScheduleEvent, role: UserRole, rsvp: RsvpResponse?, onRsvp: (String, RsvpResponse) -> Unit) {
+private fun EventCard(
+    event: ScheduleEvent,
+    role: UserRole,
+    onEditEvent: (ScheduleEvent) -> Unit,
+    onDeleteEvent: (String) -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -84,29 +114,21 @@ private fun EventCard(event: ScheduleEvent, role: UserRole, rsvp: RsvpResponse?,
     ) {
         Text(timeLabel(event.startEpochMillis), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = AceColors.court, modifier = Modifier.width(68.dp))
         Column(modifier = Modifier.weight(1f)) {
-            EventTypeBadge(event.type)
-            Text(event.title, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink, modifier = Modifier.padding(top = 6.dp, bottom = 4.dp))
-            Text("📍 ${event.location}", fontSize = 13.sp, color = AceColors.inkSoft)
-
-            if (role != UserRole.COACH) {
-                Row(modifier = Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    RsvpButton("Going", rsvp == RsvpResponse.YES) { onRsvp(event.id, RsvpResponse.YES) }
-                    RsvpButton("Can't go", rsvp == RsvpResponse.NO) { onRsvp(event.id, RsvpResponse.NO) }
+            Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                EventTypeBadge(event.type)
+                if (role.isStaff) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        IconButton(onClick = { onEditEvent(event) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.Edit, contentDescription = "Edit event", tint = AceColors.inkSoft)
+                        }
+                        IconButton(onClick = { onDeleteEvent(event.id) }, modifier = Modifier.size(28.dp)) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete event", tint = AceColors.danger)
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun RsvpButton(label: String, active: Boolean, onClick: () -> Unit) {
-    if (active) {
-        Button(onClick = onClick, colors = ButtonDefaults.buttonColors(containerColor = AceColors.sand), shape = RoundedCornerShape(999.dp)) {
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AceColors.ink)
-        }
-    } else {
-        OutlinedButton(onClick = onClick, shape = RoundedCornerShape(999.dp)) {
-            Text(label, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = AceColors.inkSoft)
+            Text(event.title, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold, color = AceColors.ink, modifier = Modifier.padding(top = 6.dp, bottom = 4.dp))
+            Text("📍 ${event.location}", fontSize = 13.sp, color = AceColors.inkSoft)
         }
     }
 }
@@ -127,4 +149,17 @@ private fun timeLabel(epochMillis: Long): String {
     val suffix = if (dt.hour < 12) "AM" else "PM"
     val minute = dt.minute.toString().padStart(2, '0')
     return "$hour12:$minute $suffix"
+}
+
+@Preview
+@Composable
+private fun ScheduleScreenPreview() {
+    AceVolleyballTheme {
+        ScheduleScreen(
+            schedule = schedule,
+            teams = teams,
+            currentTeamId = teams.first().id,
+            role = UserRole.PARENT
+        )
+    }
 }

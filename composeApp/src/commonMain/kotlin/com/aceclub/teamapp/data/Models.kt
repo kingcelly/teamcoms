@@ -1,8 +1,13 @@
 package com.aceclub.teamapp.data
 
-enum class UserRole { COACH, PARENT }
+enum class UserRole { COACH, ADMIN, PARENT, PLAYER }
+
+// Coaches and admins share the same staff-level permissions throughout the app
+// (posting announcements, managing the calendar, seeing every team's payments/roster).
+val UserRole.isStaff: Boolean get() = this == UserRole.COACH || this == UserRole.ADMIN
 
 data class AppUser(
+    val contact: String, // email or phone used to sign in
     val name: String,
     val role: UserRole,
     val teamId: String?
@@ -28,6 +33,12 @@ data class Player(
     val parent: ParentContact
 )
 
+data class Coach(
+    val id: String,
+    val teamId: String,
+    val name: String
+)
+
 data class Announcement(
     val id: String,
     val teamId: String?, // null = all teams
@@ -38,7 +49,7 @@ data class Announcement(
     val pinned: Boolean = false
 )
 
-enum class EventType { PRACTICE, GAME, TOURNAMENT }
+enum class EventType { PRACTICE, WEIGHTLIFTING, GAME, TOURNAMENT }
 
 data class ScheduleEvent(
     val id: String,
@@ -50,8 +61,6 @@ data class ScheduleEvent(
     val endEpochMillis: Long
 )
 
-enum class RsvpResponse { YES, NO }
-
 enum class PaymentStatus { PAID, DUE, OVERDUE }
 
 data class PaymentDue(
@@ -60,5 +69,33 @@ data class PaymentDue(
     val label: String,
     val amount: Int,
     val dueDate: String, // e.g. "2026-08-15"
-    val status: PaymentStatus
+    val status: PaymentStatus,
+    val installmentNumber: Int = 1, // 1-based; e.g. 2 of a 4-installment plan
+    val totalInstallments: Int = 1  // 1 = paid in full, up to 8 installments
+)
+
+data class ChatParticipant(
+    val name: String,
+    val role: String // e.g. "Coach", "Parent", "Club Office", "You"
+)
+
+data class ChatThread(
+    val id: String,
+    val teamId: String?, // null = all teams
+    val name: String,
+    val lastMessage: String,
+    val lastMessageAtEpochMillis: Long,
+    val unreadCount: Int = 0,
+    val participants: List<ChatParticipant> = emptyList(),
+    val relatedPlayerId: String? = null, // set for 1:1 chats about a specific player
+    val isParentChat: Boolean = false // true = chatting with the player's parent, false = with the player
+)
+
+data class ChatMessage(
+    val id: String,
+    val chatId: String,
+    val senderName: String,
+    val body: String,
+    val sentAtEpochMillis: Long,
+    val fromMe: Boolean = false
 )

@@ -1,8 +1,10 @@
 package com.aceclub.teamapp.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -11,7 +13,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,24 +27,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.aceclub.teamapp.data.UserRole
 import com.aceclub.teamapp.ui.theme.AceColors
 import com.aceclub.teamapp.ui.theme.AceVolleyballTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-fun LoginScreen(
-    onLogin: (contact: String, password: String) -> Boolean,
-    onNavigateToRegister: () -> Unit
+fun RegistrationScreen(
+    onRegister: (contact: String, name: String, role: UserRole) -> Boolean,
+    onNavigateToLogin: () -> Unit
 ) {
     var contact by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var name by remember { mutableStateOf("") }
+    var role by remember { mutableStateOf(UserRole.PARENT) }
     var error by remember { mutableStateOf<String?>(null) }
 
-    val canSubmit = contact.trim().isNotEmpty() && password.isNotEmpty()
+    val canSubmit = contact.trim().isNotEmpty() && name.trim().isNotEmpty()
 
     Box(
         modifier = Modifier.fillMaxSize().background(AceColors.court).padding(24.dp),
@@ -56,9 +58,9 @@ fun LoginScreen(
                     .size(44.dp)
                     .background(AceColors.volley, RoundedCornerShape(50))
             )
-            Text("Ace Volleyball Club", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
+            Text("Create your account", color = Color.White, fontSize = 26.sp, fontWeight = FontWeight.ExtraBold)
             Text(
-                "Announcements, schedules, rosters and dues — all in one place.",
+                "Join your team's announcements, schedule, roster and dues.",
                 color = Color(0xFFC9D8E3),
                 fontSize = 13.sp,
                 textAlign = TextAlign.Center,
@@ -86,20 +88,25 @@ fun LoginScreen(
                     )
                 )
 
-                FieldLabel("Password", topPadding = 18.dp)
+                FieldLabel("Your name", topPadding = 18.dp)
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it; error = null },
-                    placeholder = { Text("Your password") },
+                    value = name,
+                    onValueChange = { name = it },
+                    placeholder = { Text("e.g. Kate Bishop") },
                     singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                     modifier = Modifier.fillMaxWidth(),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = AceColors.bg,
                         unfocusedContainerColor = AceColors.bg
                     )
                 )
+
+                FieldLabel("I am a", topPadding = 18.dp)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
+                    ChoiceChip("Player", role == UserRole.PLAYER, Modifier.weight(1f)) { role = UserRole.PLAYER }
+                    ChoiceChip("Parent", role == UserRole.PARENT, Modifier.weight(1f)) { role = UserRole.PARENT }
+                    ChoiceChip("Coach", role == UserRole.COACH, Modifier.weight(1f)) { role = UserRole.COACH }
+                }
 
                 val currentError = error
                 if (currentError != null) {
@@ -108,61 +115,32 @@ fun LoginScreen(
 
                 Button(
                     onClick = {
-                        val success = onLogin(contact.trim(), password)
-                        if (!success) error = "We couldn't find an account with that email or phone."
+                        val success = onRegister(contact.trim(), name.trim(), role)
+                        if (!success) error = "An account with that email or phone already exists."
                     },
                     enabled = canSubmit,
                     colors = ButtonDefaults.buttonColors(containerColor = AceColors.volley),
                     shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth().padding(top = 22.dp)
                 ) {
-                    Text("Log In", fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(vertical = 4.dp))
+                    Text("Create Account", fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(vertical = 4.dp))
                 }
 
                 TextButton(
-                    onClick = onNavigateToRegister,
+                    onClick = onNavigateToLogin,
                     modifier = Modifier.fillMaxWidth().padding(top = 4.dp)
                 ) {
-                    Text("Don't have an account? Create one", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.court)
+                    Text("Already have an account? Log in", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.court)
                 }
             }
         }
     }
 }
 
-@Composable
-internal fun FieldLabel(text: String, topPadding: androidx.compose.ui.unit.Dp = 0.dp) {
-    Text(
-        text.uppercase(),
-        fontSize = 12.sp,
-        fontWeight = FontWeight.Bold,
-        color = AceColors.inkSoft,
-        modifier = Modifier.padding(top = topPadding, bottom = 8.dp)
-    )
-}
-
-@Composable
-internal fun ChoiceChip(label: String, selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    if (selected) {
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(containerColor = AceColors.court),
-            shape = RoundedCornerShape(12.dp),
-            modifier = modifier
-        ) { Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = Color.White) }
-    } else {
-        OutlinedButton(
-            onClick = onClick,
-            shape = RoundedCornerShape(12.dp),
-            modifier = modifier
-        ) { Text(label, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = AceColors.ink) }
-    }
-}
-
 @Preview
 @Composable
-private fun LoginScreenPreview() {
+private fun RegistrationScreenPreview() {
     AceVolleyballTheme {
-        LoginScreen(onLogin = { _, _ -> true }, onNavigateToRegister = {})
+        RegistrationScreen(onRegister = { _, _, _ -> true }, onNavigateToLogin = {})
     }
 }
